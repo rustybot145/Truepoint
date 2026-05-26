@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services — TruePoint Digital | Web Design</title>
+  <meta name="description" content="Professional website design for businesses of all sizes. Custom-built, mobile-first, fast. See what's included and how the process works.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-family: 'Inter', sans-serif; }
+    body { background: #0A0A0A; color: #fff; overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-track { background: #0A0A0A; } ::-webkit-scrollbar-thumb { background: #00C2FF; border-radius: 2px; }
+
+    /* ── LAMP HERO ── */
+    .lamp-hero {
+      position: relative;
+      min-height: 72vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #0A0A0A;
+      padding: 100px 28px 70px;
+      text-align: center;
+    }
+
+    .lamp-bg { position: absolute; inset: 0; pointer-events: none; }
+
+    /* ① Main light flood — large filled ellipse from bar down, like ref image */
+    .lamp-flood {
+      position: absolute;
+      top: 22%; left: 50%;
+      transform: translateX(-50%);
+      width: 110%;
+      height: 78%;
+      background: radial-gradient(ellipse 52% 90% at 50% 0%,
+        rgba(0, 190, 240, 0.62) 0%,
+        rgba(0, 160, 220, 0.38) 28%,
+        rgba(0, 120, 200, 0.18) 52%,
+        rgba(0,  80, 170, 0.06) 70%,
+        transparent 85%
+      );
+      z-index: 1;
+      opacity: 0;
+      animation: svc-flood 1.4s ease 0.2s forwards;
+    }
+
+    /* ② Tight bright burst at bar center — the hotspot */
+    .lamp-hotspot {
+      position: absolute;
+      top: 22%; left: 50%;
+      transform: translate(-50%, -30%);
+      width: 600px; height: 200px;
+      border-radius: 50%;
+      background: rgba(0, 210, 255, 0.85);
+      filter: blur(45px);
+      z-index: 8;
+      opacity: 0;
+      animation: svc-flood 1s ease 0.3s forwards;
+    }
+
+    /* ③ Solid black cap above the bar */
+    .lamp-dark-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 22.5%;
+      background: #0A0A0A;
+      z-index: 6;
+    }
+
+    /* ④ The physical LED bar — thick rectangular strip */
+    .lamp-bar {
+      position: absolute;
+      top: 22%; left: 50%;
+      transform: translate(-50%, -50%);
+      height: 10px; width: 0;
+      border-radius: 5px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(180, 240, 255, 0.9) 20%,
+        #ffffff 50%,
+        rgba(180, 240, 255, 0.9) 80%,
+        transparent 100%
+      );
+      box-shadow:
+        0 0 18px 6px rgba(255, 255, 255, 1),
+        0 0 50px 18px rgba(0, 200, 255, 1),
+        0 0 120px 45px rgba(0, 180, 255, 0.75),
+        0 0 260px 90px rgba(0, 160, 240, 0.3);
+      z-index: 10;
+      animation: svc-bar 1s cubic-bezier(0.25, 1, 0.5, 1) 0.25s forwards;
+    }
+
+    /* ⑤ Bottom fade back to black */
+    .lamp-blur-bot {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 200px;
+      background: linear-gradient(to top, #0A0A0A 0%, transparent 100%);
+      z-index: 5;
+    }
+
+    /* ⑥ Side vignette — keeps edges dark like reference */
+    .lamp-vignette {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 75% 100% at 50% 30%,
+          transparent 40%,
+          rgba(0,0,0,0.7) 75%,
+          #0A0A0A 100%
+        );
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* Content */
+    .lamp-content {
+      position: relative;
+      z-index: 20;
+      max-width: 700px;
+      margin: 0 auto;
+      margin-top: 50px;
+    }
+    .lamp-content .section-h1 {
+      text-shadow:
+        0 4px 12px rgba(0,0,0,0.98),
+        0 12px 40px rgba(0,0,0,0.8);
+    }
+    .lamp-content .section-sub {
+      text-shadow: 0 2px 10px rgba(0,0,0,0.95);
+    }
+
+    @keyframes svc-bar {
+      0%   { width: 0;    opacity: 0; }
+      100% { width: 680px; opacity: 1; }
+    }
+    @keyframes svc-flood {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 68px; display: flex; align-items: center; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); background: rgba(10,10,10,0.8); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .nav-inner { max-width: 1160px; width: 100%; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { height: 38px; width: auto; display: block; }
+    .nav-links { display: flex; align-items: center; gap: 36px; }
+    .nav-link { font-size: 0.8rem; font-weight: 500; letter-spacing: 0.02em; color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+    .nav-link:hover, .nav-link.active { color: #fff; }
+    .nav-actions { display: flex; align-items: center; gap: 20px; }
+    .nav-phone { font-size: 0.78rem; font-weight: 500; color: rgba(255,255,255,0.45); text-decoration: none; transition: color 0.2s; display: flex; align-items: center; gap: 6px; }
+    .nav-phone:hover { color: #00C2FF; }
+
+    .btn-primary { display: inline-flex; align-items: center; justify-content: center; background: #00C2FF; color: #0A0A0A; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; padding: 11px 24px; border-radius: 6px; text-decoration: none; border: none; cursor: pointer; transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease, background 0.15s ease; }
+    
+    .btn-primary { box-shadow: 0 0 18px 3px rgba(0,194,255,0.45), 0 0 40px 8px rgba(0,194,255,0.18);  }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,194,255,0.4); background: #1dd0ff; }
+    .btn-ghost-sm { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; color: #00C2FF; text-decoration: none; transition: opacity 0.2s; }
+    .btn-ghost-sm:hover { opacity: 0.75; }
+
+    .page-hero { position: relative; padding: 140px 28px 90px; text-align: center; overflow: hidden; }
+    .section-label { display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #00C2FF; margin-bottom: 16px; }
+    .section-h1 { font-size: clamp(2.2rem,5vw,4rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.06; margin-bottom: 20px; }
+    .section-sub { font-size: 0.97rem; color: rgba(255,255,255,0.45); line-height: 1.75; max-width: 500px; margin: 0 auto; }
+    .section-h2 { font-size: clamp(1.8rem,4vw,3rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; margin-bottom: 16px; }
+
+    .divider { height: 1px; background: rgba(255,255,255,0.05); }
+    .section { padding: 100px 28px; }
+    .section-inner { max-width: 1160px; margin: 0 auto; }
+
+    .check-item { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 22px; }
+    .check-icon { flex-shrink: 0; width: 22px; height: 22px; background: rgba(0,194,255,0.1); border: 1px solid rgba(0,194,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .check-title { font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .check-desc { font-size: 0.82rem; color: rgba(255,255,255,0.38); line-height: 1.6; }
+
+    .process-step { display: grid; grid-template-columns: 72px 1fr; gap: 24px; align-items: start; padding-bottom: 48px; border-left: 1px solid rgba(0,194,255,0.15); padding-left: 32px; margin-left: 36px; position: relative; }
+    .process-step:last-child { border-left: none; padding-bottom: 0; }
+    .process-dot { position: absolute; left: -10px; top: 0; width: 20px; height: 20px; background: #0A0A0A; border: 2px solid #00C2FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .process-dot-inner { width: 6px; height: 6px; background: #00C2FF; border-radius: 50%; }
+    .step-num-lg { font-size: 2.2rem; font-weight: 900; color: transparent; -webkit-text-stroke: 1.5px rgba(0,194,255,0.4); line-height: 1; }
+    .step-h { font-size: 1.05rem; font-weight: 700; color: #fff; margin: 4px 0 10px; }
+    .step-p { font-size: 0.87rem; color: rgba(255,255,255,0.4); line-height: 1.75; }
+
+    .card { background: #111; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 28px; transition: border-color 0.3s; }
+    .card:hover { border-color: rgba(0,194,255,0.2); }
+    .card-emoji { font-size: 1.4rem; margin-bottom: 12px; }
+    .card-h { font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .card-p { font-size: 0.82rem; color: rgba(255,255,255,0.38); line-height: 1.65; }
+
+    .cta-band-orb { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 700px; height: 350px; background: radial-gradient(ellipse, rgba(0,194,255,0.08) 0%, transparent 65%); pointer-events: none; }
+
+    .soon { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #00C2FF; background: rgba(0,194,255,0.1); border: 1px solid rgba(0,194,255,0.25); padding: 1px 5px; border-radius: 4px; vertical-align: middle; }
+
+    .footer { background: #0A0A0A; padding: 52px 28px 36px; }
+    .footer-inner { max-width: 1160px; margin: 0 auto; }
+    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 48px; flex-wrap: wrap; margin-bottom: 40px; }
+    .footer-logo { height: 32px; width: auto; margin-bottom: 14px; display: block; }
+    .footer-tagline { font-size: 0.82rem; color: rgba(255,255,255,0.3); line-height: 1.6; }
+    .footer-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+    .footer-col-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-link { font-size: 0.82rem; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s; }
+    .footer-link:hover { color: #fff; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05); }
+    .footer-copy { font-size: 0.75rem; color: rgba(255,255,255,0.2); }
+
+    #mob-menu { display: none; }
+    #mob-menu.open { display: flex; }
+    @media (max-width: 760px) { .nav-links, .nav-phone { display: none !important; } #mob-btn { display: flex !important; } }
+    @media (min-width: 761px) { #mob-btn { display: none !important; } }
+    @media (max-width: 760px) { .two-col { grid-template-columns: 1fr !important; } }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" style="text-decoration:none;"><span style="font-size:1.05rem;font-weight:800;letter-spacing:-0.02em;color:#fff;font-family:Inter,sans-serif;">TruePoint<span style="color:#00C2FF;">.</span></span></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="services.html" class="nav-link active">Services</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+      <span class="nav-link" style="opacity:.35;cursor:default;">SEO <span class="soon">Soon</span></span>
+      <span class="nav-link" style="opacity:.35;cursor:default;">Social <span class="soon">Soon</span></span>
+    </div>
+    <div class="nav-actions">
+      <a href="tel:6026844424" class="nav-phone"><svg width="12" height="12" viewBox="0 0 24 24" fill="#00C2FF"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>602-684-4424</a>
+      <a href="book.html" class="btn-primary">Book Your Free Call</a>
+      <button id="mob-btn" onclick="document.getElementById('mob-menu').classList.toggle('open')" style="background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:4px;">
+        <span style="display:block;width:22px;height:2px;background:#fff;border-radius:1px;"></span>
+        <span style="display:block;width:22px;height:2px;background:#fff;border-radius:1px;"></span>
+        <span style="display:block;width:22px;height:2px;background:#fff;border-radius:1px;"></span>
+      </button>
+    </div>
+  </div>
+  <div id="mob-menu" style="flex-direction:column;background:#111;border-top:1px solid rgba(255,255,255,0.06);padding:24px 28px;gap:20px;">
+    <a href="index.html" class="nav-link" style="font-size:.9rem;">Home</a>
+    <a href="services.html" class="nav-link active" style="font-size:.9rem;">Services</a>
+    <a href="contact.html" class="nav-link" style="font-size:.9rem;">Contact</a>
+    <a href="tel:6026844424" style="color:#00C2FF;font-size:.9rem;font-weight:600;text-decoration:none;">602-684-4424</a>
+    <a href="book.html" class="btn-primary" style="text-align:center;">Book Your Free Call</a>
+  </div>
+</nav>
+
+<!-- LAMP HERO -->
+<div class="lamp-hero">
+  <div class="lamp-bg" aria-hidden="true">
+    <div class="lamp-flood"></div>
+    <div class="lamp-hotspot"></div>
+    <div class="lamp-vignette"></div>
+    <div class="lamp-dark-top"></div>
+    <div class="lamp-bar"></div>
+    <div class="lamp-blur-bot"></div>
+  </div>
+  <div class="lamp-content">
+    <span class="section-label" style="color:#ffffff;">Services</span>
+    <h1 class="section-h1">Web Design Built<br>for <span style="color:#00C2FF;">Every Business</span></h1>
+    <p class="section-sub">One service. Done right. No package tiers, no upsells, no confusing add-ons — just a professional website that works.</p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- WHAT'S INCLUDED -->
+<section class="section" style="background:#101010;">
+  <div class="section-inner">
+    <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;">
+      <div>
+        <span class="section-label">What's Included</span>
+        <h2 class="section-h2">Everything You Need.<br>Nothing You Don't.</h2>
+        <p style="font-size:0.92rem;color:rgba(255,255,255,0.4);line-height:1.8;margin-bottom:32px;">Every website includes the full package — no nickel-and-diming, no hidden fees. This is what you get when you work with TruePoint Digital.</p>
+        <a href="book.html" class="btn-primary" style="padding:14px 32px;">Book Your Free Call</a>
+      </div>
+      <div>
+        <div class="check-item">
+          <div class="check-icon"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#00C2FF" stroke-width="2.5" stroke-linecap="round"><path d="M2 6l3 3 5-5"/></svg></div>
+          <div><div class="check-title">Custom Design — Built from Scratch</div><div class="check-desc">No templates. Your brand, your identity, your site.</div></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#00C2FF" stroke-width="2.5" stroke-linecap="round"><path d="M2 6l3 3 5-5"/></svg></div>
+          <div><div class="check-title">Mobile-First Responsive Layout</div><div class="check-desc">Looks perfect on phones, tablets, and desktops.</div></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#00C2FF" stroke-width="2.5" stroke-linecap="round"><path d="M2 6l3 3 5-5"/></svg></div>
+          <div><div class="check-title">Business Research Before We Build</div><div class="check-desc">We learn your business first — who you serve, what sets you apart, who your competitors are.</div></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#00C2FF" stroke-width="2.5" stroke-linecap="round"><path d="M2 6l3 3 5-5"/></svg></div>
+          <div><div class="check-title">Copywriting Included</div><div class="check-desc">You don't have to write a word. We handle the copy that converts.</div></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#00C2FF" stroke-width="2.5" stroke-linecap="round"><path d="M2 6l3 3 5-5"/></svg></div>
+          <div><div class="check-title">Speed Optimized</div><div class="check-desc">Fast-loading sites. Google cares about speed — so do we.</div></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#00C2FF" stroke-width="2.5" stroke-linecap="round"><path d="M2 6l3 3 5-5"/></svg></div>
+          <div><div class="check-title">Contact Forms &amp; Calls-to-Action</div><div class="check-desc">Built to convert — every site has clear paths for visitors to reach you.</div></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#00C2FF" stroke-width="2.5" stroke-linecap="round"><path d="M2 6l3 3 5-5"/></svg></div>
+          <div><div class="check-title">Basic On-Page SEO</div><div class="check-desc">Meta tags, page titles, schema markup — the foundation for showing up in search.</div></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#00C2FF" stroke-width="2.5" stroke-linecap="round"><path d="M2 6l3 3 5-5"/></svg></div>
+          <div><div class="check-title">Launch Support</div><div class="check-desc">We handle the technical side of getting your site live. You don't touch a server.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROCESS -->
+<section class="section" style="background:#0A0A0A;">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:72px;">
+      <span class="section-label">How It Works</span>
+      <h2 class="section-h2">From Call to Launch</h2>
+    </div>
+    <div style="max-width:640px;margin:0 auto;">
+      <div class="process-step">
+        <div class="process-dot"><div class="process-dot-inner"></div></div>
+        <div class="step-num-lg">01</div>
+        <div><div class="step-h">Free Discovery Call</div><div class="step-p">15 minutes. We learn about your business, your goals, and what you need. No pitch, no pressure — just a real conversation.</div></div>
+      </div>
+      <div class="process-step">
+        <div class="process-dot"><div class="process-dot-inner"></div></div>
+        <div class="step-num-lg">02</div>
+        <div><div class="step-h">Deep Business Research</div><div class="step-p">We research your industry, competitors, and customers before a single pixel is placed. The site reflects who you actually are.</div></div>
+      </div>
+      <div class="process-step">
+        <div class="process-dot"><div class="process-dot-inner"></div></div>
+        <div class="step-num-lg">03</div>
+        <div><div class="step-h">Design &amp; Feedback</div><div class="step-p">You see the full design draft before anything goes live. We refine based on your feedback — as many rounds as it takes.</div></div>
+      </div>
+      <div class="process-step">
+        <div class="process-dot"><div class="process-dot-inner"></div></div>
+        <div class="step-num-lg">04</div>
+        <div><div class="step-h">Launch</div><div class="step-p">We handle everything — domain setup, hosting, going live. You don't need to know what any of that means. It just works.</div></div>
+      </div>
+      <div class="process-step" style="border-left:none;">
+        <div class="process-dot"><div class="process-dot-inner"></div></div>
+        <div class="step-num-lg">05</div>
+        <div><div class="step-h">You're Live. We're Here.</div><div class="step-p">Your site is generating leads. We're available whenever something needs adjusting — always a real person on the phone.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WHO IT'S FOR -->
+<section class="section" style="background:#101010;">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:56px;">
+      <span class="section-label">Who We Serve</span>
+      <h2 class="section-h2">Built for Businesses That Mean Business</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
+      <div class="card"><div class="card-emoji">🔧</div><div class="card-h">Trades &amp; Contractors</div><div class="card-p">HVAC, plumbing, electrical, drywall, roofing — pros who need to look as good as their work.</div></div>
+      <div class="card"><div class="card-emoji">💼</div><div class="card-h">Coaches &amp; Consultants</div><div class="card-p">Business coaches, life coaches, advisors who need a site that builds trust fast.</div></div>
+      <div class="card"><div class="card-emoji">🏥</div><div class="card-h">Health &amp; Wellness</div><div class="card-p">Clinics, salons, spas, and fitness pros who need to attract new clients online.</div></div>
+      <div class="card"><div class="card-emoji">🍽️</div><div class="card-h">Restaurants &amp; Food</div><div class="card-p">Local food businesses that need menus, hours, and a first impression that drives traffic.</div></div>
+      <div class="card"><div class="card-emoji">📚</div><div class="card-h">Education &amp; Tutoring</div><div class="card-p">Schools, tutoring centers, and learning programs reaching families online.</div></div>
+      <div class="card"><div class="card-emoji">🏡</div><div class="card-h">Real Estate &amp; Property</div><div class="card-p">Agents, property managers, and investors who need a site that works hard.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section cta-band" style="background:#0A0A0A;position:relative;overflow:hidden;">
+  <div class="cta-band-orb"></div>
+  <div style="max-width:640px;margin:0 auto;text-align:center;position:relative;z-index:1;">
+    <span class="section-label" style="display:block;margin-bottom:18px;">No Pricing Page. Just a Conversation.</span>
+    <h2 style="font-size:clamp(2rem,5vw,3.4rem);font-weight:800;letter-spacing:-0.035em;line-height:1.06;margin-bottom:20px;">Let's Talk About<br><span style="color:#00C2FF;">Your Website</span></h2>
+    <p style="font-size:0.95rem;color:rgba(255,255,255,0.4);line-height:1.8;margin-bottom:40px;max-width:420px;margin-left:auto;margin-right:auto;">Every business is different. Book a free call and we'll figure out exactly what you need — no quote forms that go nowhere.</p>
+    <a href="book.html" class="btn-primary" style="padding:15px 44px;font-size:0.85rem;">Book Your Free Call</a>
+    <p style="margin-top:18px;font-size:0.83rem;color:rgba(255,255,255,0.3);">Or call: <a href="tel:6026844424" style="color:#00C2FF;text-decoration:none;font-weight:600;">602-684-4424</a></p>
+  </div>
+</section>
+
+<div class="divider"></div>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div><span style="display:block;font-size:1rem;font-weight:800;letter-spacing:-0.02em;color:#fff;font-family:Inter,sans-serif;margin-bottom:14px;">TruePoint<span style="color:#00C2FF;">.</span></span><p class="footer-tagline">Professional web design for businesses that mean business.</p></div>
+      <div class="footer-cols">
+        <div><div class="footer-col-label">Contact</div><div class="footer-links"><a href="tel:6026844424" class="footer-link">602-684-4424</a><a href="mailto:Truepointdigitalpro@gmail.com" class="footer-link">Truepointdigitalpro@gmail.com</a></div></div>
+      </div>
+    </div>
+    <div class="footer-bottom"><span class="footer-copy">© 2026 TruePoint Digital. All rights reserved.</span></div>
+  </div>
+</footer>
+</body>
+</html>

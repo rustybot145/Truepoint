@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — TruePoint Digital | Web Design</title>
+  <meta name="description" content="Get in touch with TruePoint Digital. Call 602-684-4424 or send a message.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-family: 'Inter', sans-serif; }
+    body { background: #0A0A0A; color: #fff; overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-track { background: #0A0A0A; } ::-webkit-scrollbar-thumb { background: #00C2FF; border-radius: 2px; }
+
+    .orb-wrap { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .orb { position: absolute; border-radius: 50%; filter: blur(80px); }
+    .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(0,194,255,0.1) 0%, transparent 70%); top: -80px; right: -80px; }
+
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 68px; display: flex; align-items: center; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); background: rgba(10,10,10,0.8); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .nav-inner { max-width: 1160px; width: 100%; margin: 0 auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { height: 38px; width: auto; display: block; }
+    .nav-links { display: flex; align-items: center; gap: 36px; }
+    .nav-link { font-size: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+    .nav-link:hover, .nav-link.active { color: #fff; }
+    .nav-actions { display: flex; align-items: center; gap: 20px; }
+    .nav-phone { font-size: 0.78rem; font-weight: 500; color: rgba(255,255,255,0.45); text-decoration: none; transition: color 0.2s; display: flex; align-items: center; gap: 6px; }
+    .nav-phone:hover { color: #00C2FF; }
+    .btn-primary { display: inline-flex; align-items: center; justify-content: center; background: #00C2FF; color: #0A0A0A; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; padding: 11px 24px; border-radius: 6px; text-decoration: none; border: none; cursor: pointer; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.5s ease, background 0.3s ease; }
+    
+    .btn-primary { box-shadow: 0 0 18px 3px rgba(0,194,255,0.45), 0 0 40px 8px rgba(0,194,255,0.18);  }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,194,255,0.4); background: #1dd0ff; }
+
+    .divider { height: 1px; background: rgba(255,255,255,0.05); }
+    .section-label { display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #00C2FF; margin-bottom: 16px; }
+
+    .contact-method { background: #111; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 24px 28px; display: flex; gap: 18px; align-items: flex-start; text-decoration: none; transition: border-color 0.2s; }
+    .contact-method:hover { border-color: rgba(0,194,255,0.25); }
+    .contact-icon { flex-shrink: 0; width: 44px; height: 44px; background: rgba(0,194,255,0.07); border: 1px solid rgba(0,194,255,0.18); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .contact-method-label { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 5px; }
+    .contact-method-value { font-size: 1.05rem; font-weight: 800; color: #fff; margin-bottom: 3px; }
+    .contact-method-sub { font-size: 0.78rem; color: rgba(255,255,255,0.28); }
+
+    .form-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 8px; display: block; }
+    .form-input { width: 100%; background: #111; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 13px 16px; color: #fff; font-size: 0.88rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+    .form-input::placeholder { color: rgba(255,255,255,0.2); }
+    .form-input:focus { border-color: rgba(0,194,255,0.4); }
+    textarea.form-input { resize: vertical; min-height: 130px; }
+
+    .cta-card { background: #111; border: 1px solid rgba(0,194,255,0.12); border-radius: 12px; padding: 28px; text-align: center; margin-top: 24px; }
+
+    .soon { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #00C2FF; background: rgba(0,194,255,0.1); border: 1px solid rgba(0,194,255,0.25); padding: 1px 5px; border-radius: 4px; vertical-align: middle; }
+
+    .footer { background: #0A0A0A; padding: 52px 28px 36px; }
+    .footer-inner { max-width: 1160px; margin: 0 auto; }
+    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 48px; flex-wrap: wrap; margin-bottom: 40px; }
+    .footer-logo { height: 32px; width: auto; margin-bottom: 14px; display: block; }
+    .footer-tagline { font-size: 0.82rem; color: rgba(255,255,255,0.3); line-height: 1.6; }
+    .footer-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+    .footer-col-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-link { font-size: 0.82rem; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s; }
+    .footer-link:hover { color: #fff; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05); }
+    .footer-copy { font-size: 0.75rem; color: rgba(255,255,255,0.2); }
+
+    #mob-menu { display: none; }
+    #mob-menu.open { display: flex; }
+    @media (max-width: 760px) { .nav-links, .nav-phone { display: none !important; } #mob-btn { display: flex !important; } .two-col { grid-template-columns: 1fr !important; } }
+    @media (min-width: 761px) { #mob-btn { display: none !important; } }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" style="text-decoration:none;"><span style="font-size:1.05rem;font-weight:800;letter-spacing:-0.02em;color:#fff;font-family:Inter,sans-serif;">TruePoint<span style="color:#00C2FF;">.</span></span></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="services.html" class="nav-link">Services</a>
+      <a href="contact.html" class="nav-link active">Contact</a>
+      <span class="nav-link" style="opacity:.35;cursor:default;">SEO <span class="soon">Soon</span></span>
+      <span class="nav-link" style="opacity:.35;cursor:default;">Social <span class="soon">Soon</span></span>
+    </div>
+    <div class="nav-actions">
+      <a href="tel:6026844424" class="nav-phone"><svg width="12" height="12" viewBox="0 0 24 24" fill="#00C2FF"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>602-684-4424</a>
+      <a href="book.html" class="btn-primary">Book Your Free Call</a>
+      <button id="mob-btn" onclick="document.getElementById('mob-menu').classList.toggle('open')" style="background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:4px;">
+        <span style="display:block;width:22px;height:2px;background:#fff;border-radius:1px;"></span>
+        <span style="display:block;width:22px;height:2px;background:#fff;border-radius:1px;"></span>
+        <span style="display:block;width:22px;height:2px;background:#fff;border-radius:1px;"></span>
+      </button>
+    </div>
+  </div>
+  <div id="mob-menu" style="flex-direction:column;background:#111;border-top:1px solid rgba(255,255,255,0.06);padding:24px 28px;gap:20px;">
+    <a href="index.html" class="nav-link" style="font-size:.9rem;">Home</a>
+    <a href="services.html" class="nav-link" style="font-size:.9rem;">Services</a>
+    <a href="contact.html" class="nav-link active" style="font-size:.9rem;">Contact</a>
+    <a href="tel:6026844424" style="color:#00C2FF;font-size:.9rem;font-weight:600;text-decoration:none;">602-684-4424</a>
+    <a href="book.html" class="btn-primary" style="text-align:center;">Book Your Free Call</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<section style="position:relative;padding:120px 28px 100px;overflow:hidden;">
+  <div class="orb-wrap"><div class="orb orb-1"></div></div>
+
+  <!-- Page heading -->
+  <div style="max-width:640px;margin:0 auto 72px;text-align:center;position:relative;z-index:1;">
+    <span class="section-label">Get in Touch</span>
+    <h1 style="font-size:clamp(2.2rem,5vw,3.8rem);font-weight:800;letter-spacing:-0.035em;line-height:1.06;margin-bottom:18px;">We Answer the Phone.<br><span style="color:#00C2FF;">Every Time.</span></h1>
+    <p style="font-size:0.97rem;color:rgba(255,255,255,0.4);line-height:1.8;max-width:420px;margin:0 auto;">No inbox black holes. No bots. You reach out, you get Ben — the person building your site.</p>
+  </div>
+
+  <div class="two-col" style="max-width:1060px;margin:0 auto;display:grid;grid-template-columns:1fr 1.4fr;gap:56px;align-items:start;position:relative;z-index:1;">
+
+    <!-- Left: Methods -->
+    <div>
+      <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:20px;">Contact Methods</p>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:28px;">
+        <a href="tel:6026844424" class="contact-method">
+          <div class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="#00C2FF"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></div>
+          <div>
+            <div class="contact-method-label">Call or Text</div>
+            <div class="contact-method-value">602-684-4424</div>
+            <div class="contact-method-sub">Fastest response · Mon–Fri, 8am–6pm</div>
+          </div>
+        </a>
+        <a href="mailto:Truepointdigitalpro@gmail.com" class="contact-method">
+          <div class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00C2FF" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+          <div>
+            <div class="contact-method-label">Email</div>
+            <div class="contact-method-value" style="font-size:0.9rem;">Truepointdigitalpro@gmail.com</div>
+            <div class="contact-method-sub">Usually reply within a few hours</div>
+          </div>
+        </a>
+      </div>
+      <div class="cta-card">
+        <p style="font-size:0.87rem;font-weight:700;margin-bottom:8px;">Want to skip the form?</p>
+        <p style="font-size:0.82rem;color:rgba(255,255,255,0.35);line-height:1.6;margin-bottom:20px;">Book a free 15-minute call and talk directly.</p>
+        <a href="book.html" class="btn-primary" style="padding:12px 24px;font-size:0.78rem;">Book Your Free Call</a>
+      </div>
+    </div>
+
+    <!-- Right: Form -->
+    <div>
+      <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:20px;">Send a Message</p>
+      <form id="contactForm" onsubmit="handleSubmit(event)" style="display:flex;flex-direction:column;gap:18px;">
+        <input type="hidden" name="access_key" value="9d65d154-4db0-42ca-9b9a-103bf8c0a176">
+        <input type="hidden" name="subject" value="New Website Inquiry — TruePoint Digital">
+        <input type="hidden" name="from_name" value="TruePoint Digital Website">
+        <input type="checkbox" name="botcheck" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div><label class="form-label" for="fn">First Name</label><input class="form-input" type="text" id="fn" name="first_name" placeholder="Jason" required></div>
+          <div><label class="form-label" for="ln">Last Name</label><input class="form-input" type="text" id="ln" name="last_name" placeholder="Rivera" required></div>
+        </div>
+        <div><label class="form-label" for="em">Email</label><input class="form-input" type="email" id="em" name="email" placeholder="jason@yourbusiness.com" required></div>
+        <div><label class="form-label" for="ph">Phone (optional)</label><input class="form-input" type="tel" id="ph" name="phone" placeholder="602-xxx-xxxx"></div>
+        <div><label class="form-label" for="biz">Business Name</label><input class="form-input" type="text" id="biz" name="business_name" placeholder="Your Business Co."></div>
+        <div><label class="form-label" for="msg">What do you need?</label><textarea class="form-input" id="msg" name="message" placeholder="Tell us about your business and what you're looking for in a website..." required></textarea></div>
+        <button type="submit" id="submitBtn" class="btn-primary" style="padding:15px;font-size:0.85rem;width:100%;">Send Message</button>
+      </form>
+      <div id="successMsg" style="display:none;background:rgba(0,194,255,0.07);border:1px solid rgba(0,194,255,0.25);border-radius:12px;padding:32px;text-align:center;margin-top:16px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00C2FF" stroke-width="1.5" style="margin:0 auto 14px;display:block;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+        <p style="font-weight:700;font-size:1rem;margin-bottom:8px;">Message sent!</p>
+        <p style="color:rgba(255,255,255,0.4);font-size:0.85rem;line-height:1.6;">We'll get back to you within a few hours. Or call: <a href="tel:6026844424" style="color:#00C2FF;text-decoration:none;font-weight:600;">602-684-4424</a></p>
+      </div>
+      <p style="font-size:0.72rem;color:rgba(255,255,255,0.2);margin-top:14px;line-height:1.6;">Your info is never sold or shared. We only use it to respond to your message.</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div><span style="display:block;font-size:1rem;font-weight:800;letter-spacing:-0.02em;color:#fff;font-family:Inter,sans-serif;margin-bottom:14px;">TruePoint<span style="color:#00C2FF;">.</span></span><p class="footer-tagline">Professional web design for businesses that mean business.</p></div>
+      <div class="footer-cols">
+        <div><div class="footer-col-label">Contact</div><div class="footer-links"><a href="tel:6026844424" class="footer-link">602-684-4424</a><a href="mailto:Truepointdigitalpro@gmail.com" class="footer-link">Truepointdigitalpro@gmail.com</a></div></div>
+      </div>
+    </div>
+    <div class="footer-bottom"><span class="footer-copy">© 2026 TruePoint Digital. All rights reserved.</span></div>
+  </div>
+</footer>
+
+<script>
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+
+    const form = document.getElementById('contactForm');
+    const data = new FormData(form);
+
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: data
+      });
+      const json = await res.json();
+
+      if (json.success) {
+        form.style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+      } else {
+        btn.textContent = 'Something went wrong — try again';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    } catch (err) {
+      btn.textContent = 'Network error — try again';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+</script>
+</body>
+</html>
