@@ -1,0 +1,7 @@
+{
+  "name": "truepoint-digital",
+  "private": true,
+  "dependencies": {
+    "@arcjet/node": "^1.4.0"
+  }
+}
