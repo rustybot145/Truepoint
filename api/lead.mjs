@@ -72,6 +72,13 @@ export default async function handler(req, res) {
   // exact same pipeline card instead of searching for it.
   const incomingOppId = (data.oppId || '').trim().slice(0, 60);
 
+  // Real value from the required consent checkbox — captured but not yet sent to
+  // GHL. TODO once the "Wants SMS" custom field exists in GHL: add it to `payload`
+  // below as `customFields: [{ key: '<the real key>', field_value: wantsSms ? 'Yes' : 'No' }]`.
+  // Not guessing the key here — a wrong key fails silently and is worse than leaving
+  // this as a visible gap. See Packages.md.
+  const wantsSms = data.wantsSms === true;
+
   // Accept either name — the Vercel var is GHLMCP, local .env uses GHL_API_KEY.
   const ghlToken = process.env.GHLMCP || process.env.GHL_API_KEY;
   if (!ghlToken) {

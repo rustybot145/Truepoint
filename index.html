@@ -758,7 +758,8 @@ async function handleLeadStep2(e) {
         email: leadEmailValue,
         oppId: leadOppIdValue,
         firstName: document.getElementById('leadFirst').value,
-        phone: document.getElementById('leadPhone').value
+        phone: document.getElementById('leadPhone').value,
+        wantsSms: document.getElementById('leadSmsConsent').checked
       })
     });
     var json = await res.json();
