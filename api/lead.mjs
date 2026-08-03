@@ -52,21 +52,7 @@ export default async function handler(req, res) {
   const ghlToken = process.env.GHLMCP || process.env.GHL_API_KEY;
   if (!ghlToken) {
     console.error('No GHL token: neither GHLMCP nor GHL_API_KEY is set');
-    res.status(500).json({
-      success: false,
-      message: 'Server misconfigured',
-      // TEMPORARY deploy/env diagnostic. Presence booleans and variable NAMES only —
-      // never values. Remove once the form is confirmed working.
-      _diag: {
-        build: 'diag-1',
-        GHLMCP: Boolean(process.env.GHLMCP),
-        GHL_API_KEY: Boolean(process.env.GHL_API_KEY),
-        matchingNames: Object.keys(process.env).filter((k) => /GHL|HIGHLEVEL|LEADCONN/i.test(k)),
-        vercelEnv: process.env.VERCEL_ENV || null,
-        commit: (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 7) || null,
-        branch: process.env.VERCEL_GIT_COMMIT_REF || null,
-      },
-    });
+    res.status(500).json({ success: false, message: 'Server misconfigured' });
     return;
   }
 
