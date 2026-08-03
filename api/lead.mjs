@@ -8,8 +8,10 @@ const aj = arcjet({
   ],
 });
 
-// Truepoint Digital's Go High Level location — not a secret, safe to hardcode.
+// Truepoint Digital's Go High Level location, pipeline, and stage — not secrets, safe to hardcode.
 const GHL_LOCATION_ID = '5mYqhmiB4HEf6r0CRGoP';
+const GHL_PIPELINE_ID = 'pPxe0mptXps4zahDHmoL'; // Business Pipeline
+const GHL_STAGE_FORM_FILLED_OUT = '572834fe-396b-4093-ac34-b9754d2fa4b2'; // "Form Filled out" stage
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -42,6 +44,7 @@ export default async function handler(req, res) {
   const firstName = (data.firstName || '').trim();
   const lastName = (data.lastName || '').trim();
   const phone = (data.phone || '').trim();
+  const isFirstStep = !firstName && !lastName && !phone;
 
   const ghlToken = process.env.GHL_API_KEY;
   if (!ghlToken) {
@@ -71,7 +74,46 @@ export default async function handler(req, res) {
       body: JSON.stringify(payload),
     });
     const json = await upstream.json();
-    res.status(upstream.ok ? 200 : upstream.status).json({ success: upstream.ok, ...json });
+
+    if (!upstream.ok) {
+      res.status(upstream.status).json({ success: false, ...json });
+      return;
+    }
+
+    // Only create the pipeline card on step 1 (email only) — step 2 just enriches
+    // the same contact and shouldn't spawn a second card in "Form Filled out."
+    if (isFirstStep) {
+      const contactId = json.contact ? json.contact.id : json.id;
+      if (contactId) {
+        try {
+          const oppRes = await fetch('https://services.leadconnectorhq.com/opportunities/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${ghlToken}`,
+              Version: '2021-07-28',
+            },
+            body: JSON.stringify({
+              pipelineId: GHL_PIPELINE_ID,
+              locationId: GHL_LOCATION_ID,
+              contactId,
+              name: `Website Lead — ${email}`,
+              pipelineStageId: GHL_STAGE_FORM_FILLED_OUT,
+              status: 'open',
+            }),
+          });
+          if (!oppRes.ok) {
+            console.error('Opportunity creation failed:', await oppRes.text());
+          }
+        } catch (oppErr) {
+          // Contact capture is the critical path — don't fail the whole request
+          // just because the pipeline card didn't get created.
+          console.error('Opportunity creation error:', oppErr);
+        }
+      }
+    }
+
+    res.status(200).json({ success: true, ...json });
   } catch (err) {
     res.status(502).json({ success: false, message: 'Upstream error' });
   }
