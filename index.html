@@ -202,8 +202,11 @@
     }
     .lead-step2.open { max-height: 500px; opacity: 1; margin-top: 14px; }
     .lead-step2-label { font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
-    .lead-step2-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    @media (max-width: 520px) { .lead-step2-row { flex-direction: column; } }
+    .lead-consent { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 14px; }
+    .lead-consent input[type="checkbox"] { margin-top: 3px; width: 15px; height: 15px; accent-color: #00C2FF; flex-shrink: 0; }
+    .lead-consent label { font-size: 0.76rem; color: rgba(255,255,255,0.55); line-height: 1.5; }
+    .lead-consent a { color: rgba(255,255,255,0.75); text-decoration: underline; }
+    .lead-consent a:hover { color: #00C2FF; }
     .hero-stat-line {
       margin-top: 40px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.08);
       font-size: 0.85rem; color: rgba(255,255,255,0.6); max-width: 460px; margin-left: auto; margin-right: auto;
@@ -471,12 +474,13 @@
 
       <form id="leadStep2Form" onsubmit="handleLeadStep2(event)" class="lead-step2">
         <div class="lead-step2-label">Almost done — how should we reach you?</div>
-        <div class="lead-step2-row">
-          <input type="text" id="leadFirst" class="lead-input" placeholder="First name" required maxlength="60" autocomplete="given-name">
-          <input type="text" id="leadLast" class="lead-input" placeholder="Last name" required maxlength="60" autocomplete="family-name">
-        </div>
+        <input type="text" id="leadFirst" class="lead-input" placeholder="First name" required maxlength="60" autocomplete="given-name" style="width:100%;margin-bottom:10px;">
         <input type="tel" id="leadPhone" class="lead-input" placeholder="Phone number" required maxlength="20" autocomplete="tel" style="width:100%;margin-bottom:10px;">
-        <button type="submit" class="lead-btn" style="width:100%;">Submit</button>
+        <div class="lead-consent">
+          <input type="checkbox" id="leadSmsConsent" required>
+          <label for="leadSmsConsent">By clicking Continue, you agree to receive SMS messages from True Point Digital about your inquiry. Message &amp; data rates may apply, message frequency varies. Reply STOP to opt out, HELP for help. See our <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and <a href="terms.html" target="_blank" rel="noopener">Terms of Use</a>.</label>
+        </div>
+        <button type="submit" class="lead-btn" style="width:100%;">Continue</button>
       </form>
 
       <div id="leadSuccess" class="lead-success">✓ Got it — we'll reach out shortly.</div>
@@ -591,6 +595,7 @@
     </div>
     <div class="footer-bottom">
       <span class="footer-copy">© 2026 TruePoint Digital. All rights reserved.</span>
+      <span class="footer-copy"><a href="privacy.html" class="footer-link" style="display:inline;">Privacy Policy</a> · <a href="terms.html" class="footer-link" style="display:inline;">Terms of Use</a></span>
     </div>
   </div>
 </footer>
@@ -750,7 +755,6 @@ async function handleLeadStep2(e) {
       body: JSON.stringify({
         email: leadEmailValue,
         firstName: document.getElementById('leadFirst').value,
-        lastName: document.getElementById('leadLast').value,
         phone: document.getElementById('leadPhone').value
       })
     });

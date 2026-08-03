@@ -44,9 +44,8 @@ export default async function handler(req, res) {
   // Length caps mirror the HTML maxlength attributes — those are client-side only and
   // trivially bypassed by posting to this endpoint directly, so enforce them here too.
   const firstName = (data.firstName || '').trim().slice(0, 60);
-  const lastName = (data.lastName || '').trim().slice(0, 60);
   const phone = (data.phone || '').trim().slice(0, 20);
-  const isFirstStep = !firstName && !lastName && !phone;
+  const isFirstStep = !firstName && !phone;
 
   // Accept either name — the Vercel var is GHLMCP, local .env uses GHL_API_KEY.
   const ghlToken = process.env.GHLMCP || process.env.GHL_API_KEY;
@@ -65,7 +64,6 @@ export default async function handler(req, res) {
     tags,
   };
   if (firstName) payload.firstName = firstName;
-  if (lastName) payload.lastName = lastName;
   if (phone) payload.phone = phone;
 
   try {
@@ -117,30 +115,6 @@ export default async function handler(req, res) {
         // Contact capture is the critical path — don't fail the whole request
         // just because the pipeline card didn't get created.
         console.error('Opportunity creation error:', oppErr);
-      }
-    }
-
-    // Step 2 only — add 'phone-captured' as its own call, AFTER the upsert above
-    // has already saved firstName/lastName/phone. GHL's Workflow trigger fires off
-    // this tag; adding it in a separate, later request (instead of bundled into
-    // the same upsert payload) guarantees the trigger reads a contact that already
-    // has the name on it, instead of racing the field write.
-    if (!isFirstStep && phone && contactId) {
-      try {
-        const tagRes = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}/tags`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${ghlToken}`,
-            Version: '2021-07-28',
-          },
-          body: JSON.stringify({ tags: ['phone-captured'] }),
-        });
-        if (!tagRes.ok) {
-          console.error('phone-captured tag failed:', await tagRes.text());
-        }
-      } catch (tagErr) {
-        console.error('phone-captured tag error:', tagErr);
       }
     }
 
