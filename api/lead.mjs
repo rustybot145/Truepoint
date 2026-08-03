@@ -33,17 +33,19 @@ export default async function handler(req, res) {
     return;
   }
 
-  const email = (data.email || '').trim().toLowerCase();
-  if (!email || !email.includes('@')) {
+  const email = (data.email || '').trim().toLowerCase().slice(0, 254);
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     res.status(400).json({ success: false, message: 'Valid email required' });
     return;
   }
 
   // Optional — present on the step-2 submit (name + phone), absent on step 1 (email only).
   // Upsert matches on email, so this updates the same contact rather than creating a second one.
-  const firstName = (data.firstName || '').trim();
-  const lastName = (data.lastName || '').trim();
-  const phone = (data.phone || '').trim();
+  // Length caps mirror the HTML maxlength attributes — those are client-side only and
+  // trivially bypassed by posting to this endpoint directly, so enforce them here too.
+  const firstName = (data.firstName || '').trim().slice(0, 60);
+  const lastName = (data.lastName || '').trim().slice(0, 60);
+  const phone = (data.phone || '').trim().slice(0, 20);
   const isFirstStep = !firstName && !lastName && !phone;
 
   const ghlToken = process.env.GHL_API_KEY;
@@ -76,7 +78,10 @@ export default async function handler(req, res) {
     const json = await upstream.json();
 
     if (!upstream.ok) {
-      res.status(upstream.status).json({ success: false, ...json });
+      // Log the real GHL error server-side for debugging, but don't hand the raw
+      // upstream response (internal IDs, field names) to whoever's calling this.
+      console.error('GHL contact upsert failed:', json);
+      res.status(upstream.status).json({ success: false, message: 'Upstream error' });
       return;
     }
 
@@ -113,7 +118,7 @@ export default async function handler(req, res) {
       }
     }
 
-    res.status(200).json({ success: true, ...json });
+    res.status(200).json({ success: true });
   } catch (err) {
     res.status(502).json({ success: false, message: 'Upstream error' });
   }
