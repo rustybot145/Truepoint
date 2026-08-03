@@ -74,6 +74,12 @@ export default async function handler(req, res) {
   // exact same pipeline card instead of searching for it.
   const incomingOppId = (data.oppId || '').trim().slice(0, 60);
 
+  // Date the lead first came in (step 1), not whenever step 2 happens to be
+  // completed — threaded through the same way as oppId so a same-day rename
+  // doesn't silently overwrite it with a later date.
+  const incomingLeadDate = (data.leadDate || '').trim().slice(0, 20);
+  const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
   // Real value from the required consent checkbox — captured but not yet sent to
   // GHL. TODO once the "Wants SMS" custom field exists in GHL: add it to `payload`
   // below as `customFields: [{ key: '<the real key>', field_value: wantsSms ? 'Yes' : 'No' }]`.
@@ -94,7 +100,7 @@ export default async function handler(req, res) {
   const payload = {
     locationId: GHL_LOCATION_ID,
     email,
-    source: 'Website - Homepage Lead Bar',
+    source: 'Social Media Landing Page',
     tags,
   };
   if (firstName) payload.firstName = firstName;
@@ -139,7 +145,7 @@ export default async function handler(req, res) {
             pipelineId: GHL_PIPELINE_ID,
             locationId: GHL_LOCATION_ID,
             contactId,
-            name: `Website Lead — ${email}`,
+            name: `Website Lead — ${email} — ${today}`,
             pipelineStageId: GHL_STAGE_FORM_FILLED_OUT,
             status: 'open',
           }),
@@ -157,13 +163,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // Step 2 — rename the same pipeline card to the lead's actual name + phone,
-    // so that info is visible right on the Opportunities board without having
-    // to click into the linked contact.
+    // Step 2 — rename the same pipeline card to the lead's name, business name,
+    // and the date they first came in (step 1's date, not today, in case step 2
+    // happens later) — kept short on purpose, not every field crammed in.
     if (!isFirstStep && incomingOppId) {
       try {
-        const label = [firstName, phone ? friendlyPhone(phone) : null, businessName, businessNiche]
-          .filter(Boolean).join(' — ') || email;
+        const label = [firstName, businessName, incomingLeadDate || today].filter(Boolean).join(' — ') || email;
         const renameRes = await fetch(`https://services.leadconnectorhq.com/opportunities/${incomingOppId}`, {
           method: 'PUT',
           headers: {
@@ -181,7 +186,7 @@ export default async function handler(req, res) {
       }
     }
 
-    res.status(200).json({ success: true, oppId: createdOppId });
+    res.status(200).json({ success: true, oppId: createdOppId, leadDate: today });
   } catch (err) {
     res.status(502).json({ success: false, message: 'Upstream error' });
   }
