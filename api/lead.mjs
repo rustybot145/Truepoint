@@ -56,11 +56,17 @@ export default async function handler(req, res) {
     return;
   }
 
+  // 'phone-captured' only gets added on step 2 — this is the tag GHL's own
+  // Workflow trigger watches for, so the actual text-send lives inside GHL,
+  // not in this file. See Packages.md for the workflow setup.
+  const tags = ['website-lead', 'homepage'];
+  if (phone) tags.push('phone-captured');
+
   const payload = {
     locationId: GHL_LOCATION_ID,
     email,
     source: 'Website - Homepage Lead Bar',
-    tags: ['website-lead', 'homepage'],
+    tags,
   };
   if (firstName) payload.firstName = firstName;
   if (lastName) payload.lastName = lastName;
