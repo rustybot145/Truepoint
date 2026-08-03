@@ -48,9 +48,9 @@ export default async function handler(req, res) {
   const phone = (data.phone || '').trim().slice(0, 20);
   const isFirstStep = !firstName && !lastName && !phone;
 
-  const ghlToken = process.env.GHL_API_KEY;
+  const ghlToken = process.env.GHLMCP;
   if (!ghlToken) {
-    console.error('GHL_API_KEY is not set');
+    console.error('GHLMCP is not set');
     res.status(500).json({ success: false, message: 'Server misconfigured' });
     return;
   }
