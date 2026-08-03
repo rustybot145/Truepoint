@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="referrer" content="no-referrer">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0A0A0A">
   <title>TruePoint Digital — Booking & Lead Systems for Automotive Businesses</title>
   <meta name="description" content="Booking, deposits, and follow-up systems built for mobile detailers, ceramic & PPF shops, and repair businesses. Stop losing jobs to a missed message.">
   <script type="application/ld+json">
@@ -29,13 +30,16 @@
     ]
   }
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     a:focus-visible, button:focus-visible { outline: 2px solid #00C2FF; outline-offset: 3px; border-radius: 4px; }
-    html { scroll-behavior: smooth; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+    html {
+      scroll-behavior: smooth;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      -webkit-text-size-adjust: 100%;  /* stop iOS inflating text in landscape */
+    }
     body { background: #0A0A0A; color: #fff; overflow-x: hidden; }
+    a, button, input { -webkit-tap-highlight-color: transparent; }
 
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-track { background: #0A0A0A; }
@@ -107,7 +111,10 @@
       position: absolute; inset: 0;
       z-index: 0;
       pointer-events: none;
+      /* Blur here (GPU, composited once) rather than ctx.filter per frame (CPU raster). */
+      filter: blur(40px);
     }
+    @media (max-width: 760px) { .beams-canvas { filter: blur(28px); } }
 
     /* ── HERO — stacked, centered ── */
     .hero-stack {
@@ -325,7 +332,8 @@
     }
     @media (max-width: 760px) {
       .nav-links, .nav-phone { display: none !important; }
-      #mob-btn { display: block !important; }
+      /* must be flex, not block — the bars are spaced with flex `gap` */
+      #mob-btn { display: flex !important; }
     }
     @media (min-width: 761px) { #mob-btn { display: none !important; } }
 
@@ -334,6 +342,44 @@
       .card { padding: 24px; }
       .footer { padding: 44px 24px 28px; }
       .footer-top { margin-bottom: 36px; }
+
+      /* iOS zooms the whole page when a focused input is under 16px */
+      .lead-input { font-size: 16px; padding: 15px 16px; }
+      .lead-btn { font-size: 0.95rem; padding: 16px 26px; }
+
+      /* thumb-sized tap targets */
+      .footer-link, .nav-link { display: inline-flex; align-items: center; min-height: 44px; }
+      .footer-links { gap: 0; }
+      #mob-menu .nav-link { min-height: 48px; }
+      .nav-inner { padding: 0 18px; }
+      .nav-actions { gap: 12px; }
+      .btn-primary { padding: 11px 18px; }
+      #mob-menu { max-height: calc(100vh - 68px); overflow-y: auto; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-stack { padding: 104px 20px 52px; }
+      .hero-h1 { font-size: clamp(2rem, 9vw, 2.6rem); }
+      .hero-tag { font-size: 0.65rem; padding: 6px 12px; margin-bottom: 22px; }
+      .simple-icon-wrap, .simple-icon-circle { width: 108px; height: 108px; }
+      .simple-icon-wrap { margin-bottom: 36px; }
+      .section { padding: 48px 20px; }
+      .footer { padding: 40px 20px 24px; }
+      .footer-cols { gap: 32px; }
+      .cta-band h2 { font-size: clamp(1.6rem, 7vw, 2rem); }
+    }
+
+    /* :hover sticks after a tap on touch screens — don't leave cards lifted */
+    @media (hover: none) {
+      .card:hover { transform: none; box-shadow: none; border-color: rgba(255,255,255,0.07); }
+      .btn-primary:hover, .lead-btn:hover { transform: none; box-shadow: none; background: #00C2FF; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .fade-up { opacity: 1; transform: none; transition: none; }
+      .hero-tag-dot { animation: none; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
     }
 
     /* ── SCROLL ANIMATIONS ── */
@@ -576,6 +622,8 @@
 
   var beams = [];
   var running = true;
+  var coarse = window.matchMedia('(pointer: coarse)').matches;
+  var lastW = 0;
 
   function makeBeam(w, h) {
     return {
@@ -592,22 +640,27 @@
   }
 
   function resize() {
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // The canvas is CSS-blurred, so it can render well below device resolution.
+    var dpr = Math.min(window.devicePixelRatio || 1, coarse ? 1 : 1.5);
     var w = wrap.clientWidth, h = wrap.clientHeight;
+    lastW = w;
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     canvas.style.width = w + 'px';
     canvas.style.height = h + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var count = Math.max(5, Math.round(w / 220));
+    var count = Math.max(coarse ? 3 : 5, Math.round(w / (coarse ? 300 : 220)));
     beams = [];
     for (var i = 0; i < count; i++) beams.push(makeBeam(w, h));
   }
 
+  var skip = false;
   function draw() {
+    if (running) requestAnimationFrame(draw);
+    // Half frame rate on phones — the beams drift slowly, nobody can tell.
+    if (coarse) { skip = !skip; if (skip) return; }
     var w = wrap.clientWidth, h = wrap.clientHeight;
     ctx.clearRect(0, 0, w, h);
-    ctx.filter = 'blur(40px)';
     for (var i = 0; i < beams.length; i++) {
       var b = beams[i];
       b.y -= b.speed;
@@ -630,15 +683,23 @@
       ctx.fillRect(-b.w / 2, 0, b.w, b.len);
       ctx.restore();
     }
-    if (running) requestAnimationFrame(draw);
   }
 
   document.addEventListener('visibilitychange', function() {
+    var wasRunning = running;
     running = !document.hidden;
-    if (running) requestAnimationFrame(draw);
+    if (running && !wasRunning) requestAnimationFrame(draw);
   });
 
-  window.addEventListener('resize', resize);
+  // Scrolling a phone shows/hides the URL bar, which fires resize constantly.
+  // Only rebuild when the width actually changed.
+  var resizeTimer;
+  window.addEventListener('resize', function() {
+    if (wrap.clientWidth === lastW) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 150);
+  });
+
   resize();
   requestAnimationFrame(draw);
 })();
