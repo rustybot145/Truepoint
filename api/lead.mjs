@@ -56,11 +56,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 'phone-captured' only gets added on step 2 — this is the tag GHL's own
-  // Workflow trigger watches for, so the actual text-send lives inside GHL,
-  // not in this file. See Packages.md for the workflow setup.
   const tags = ['website-lead', 'homepage'];
-  if (phone) tags.push('phone-captured');
 
   const payload = {
     locationId: GHL_LOCATION_ID,
@@ -124,29 +120,27 @@ export default async function handler(req, res) {
       }
     }
 
-    // Step 2 only (phone just came in) — send one automatic follow-up text.
-    // Wording approved by Ben 2026-08-03 — edit here if it ever changes.
+    // Step 2 only — add 'phone-captured' as its own call, AFTER the upsert above
+    // has already saved firstName/lastName/phone. GHL's Workflow trigger fires off
+    // this tag; adding it in a separate, later request (instead of bundled into
+    // the same upsert payload) guarantees the trigger reads a contact that already
+    // has the name on it, instead of racing the field write.
     if (!isFirstStep && phone && contactId) {
       try {
-        const smsRes = await fetch('https://services.leadconnectorhq.com/conversations/messages', {
+        const tagRes = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}/tags`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${ghlToken}`,
-            Version: '2021-04-15',
+            Version: '2021-07-28',
           },
-          body: JSON.stringify({
-            type: 'SMS',
-            contactId,
-            message: `Hey ${firstName || 'there'} — it's Ben with True Point Digital, thanks for reaching out. We build booking, deposit, and follow-up systems for shops like yours. Want me to send over what it'd look like for your business, or would a quick call be easier?`,
-          }),
+          body: JSON.stringify({ tags: ['phone-captured'] }),
         });
-        if (!smsRes.ok) {
-          console.error('Follow-up SMS failed:', await smsRes.text());
+        if (!tagRes.ok) {
+          console.error('phone-captured tag failed:', await tagRes.text());
         }
-      } catch (smsErr) {
-        // Contact capture is still the critical path — don't fail the request over the text.
-        console.error('Follow-up SMS error:', smsErr);
+      } catch (tagErr) {
+        console.error('phone-captured tag error:', tagErr);
       }
     }
 
