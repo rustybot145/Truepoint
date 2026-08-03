@@ -476,6 +476,8 @@
         <div class="lead-step2-label">Almost done — how should we reach you?</div>
         <input type="text" id="leadFirst" class="lead-input" placeholder="First name" required maxlength="60" autocomplete="given-name" style="width:100%;margin-bottom:10px;">
         <input type="tel" id="leadPhone" class="lead-input" placeholder="Phone number" required maxlength="20" autocomplete="tel" style="width:100%;margin-bottom:10px;">
+        <input type="text" id="leadBusinessName" class="lead-input" placeholder="Business name" required maxlength="100" autocomplete="organization" style="width:100%;margin-bottom:10px;">
+        <input type="text" id="leadBusinessNiche" class="lead-input" placeholder="Business niche (e.g. mobile detailing, ceramic coating)" required maxlength="100" style="width:100%;margin-bottom:10px;">
         <div class="lead-consent">
           <input type="checkbox" id="leadSmsConsent" required>
           <label for="leadSmsConsent">By clicking Continue, you agree to receive SMS messages from True Point Digital about your inquiry. Message &amp; data rates may apply, message frequency varies. Reply STOP to opt out, HELP for help. See our <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and <a href="terms.html" target="_blank" rel="noopener">Terms of Use</a>.</label>
@@ -759,6 +761,8 @@ async function handleLeadStep2(e) {
         oppId: leadOppIdValue,
         firstName: document.getElementById('leadFirst').value,
         phone: document.getElementById('leadPhone').value,
+        businessName: document.getElementById('leadBusinessName').value,
+        businessNiche: document.getElementById('leadBusinessNiche').value,
         wantsSms: document.getElementById('leadSmsConsent').checked
       })
     });

@@ -61,6 +61,8 @@ export default async function handler(req, res) {
   const firstName = (data.firstName || '').trim().slice(0, 60);
   const rawPhone = (data.phone || '').trim().slice(0, 20);
   const phone = rawPhone ? toE164(rawPhone) : '';
+  const businessName = (data.businessName || '').trim().slice(0, 100);
+  const businessNiche = (data.businessNiche || '').trim().slice(0, 100);
   const isFirstStep = !firstName && !rawPhone;
 
   if (rawPhone && !phone) {
@@ -97,6 +99,7 @@ export default async function handler(req, res) {
   };
   if (firstName) payload.firstName = firstName;
   if (phone) payload.phone = phone;
+  if (businessName) payload.companyName = businessName;
 
   try {
     const upstream = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
@@ -159,7 +162,8 @@ export default async function handler(req, res) {
     // to click into the linked contact.
     if (!isFirstStep && incomingOppId) {
       try {
-        const label = [firstName, phone ? friendlyPhone(phone) : null].filter(Boolean).join(' — ') || email;
+        const label = [firstName, phone ? friendlyPhone(phone) : null, businessName, businessNiche]
+          .filter(Boolean).join(' — ') || email;
         const renameRes = await fetch(`https://services.leadconnectorhq.com/opportunities/${incomingOppId}`, {
           method: 'PUT',
           headers: {
