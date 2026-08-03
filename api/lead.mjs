@@ -37,12 +37,28 @@ export default async function handler(req, res) {
     return;
   }
 
+  // Optional — present on the step-2 submit (name + phone), absent on step 1 (email only).
+  // Upsert matches on email, so this updates the same contact rather than creating a second one.
+  const firstName = (data.firstName || '').trim();
+  const lastName = (data.lastName || '').trim();
+  const phone = (data.phone || '').trim();
+
   const ghlToken = process.env.GHL_API_KEY;
   if (!ghlToken) {
     console.error('GHL_API_KEY is not set');
     res.status(500).json({ success: false, message: 'Server misconfigured' });
     return;
   }
+
+  const payload = {
+    locationId: GHL_LOCATION_ID,
+    email,
+    source: 'Website - Homepage Lead Bar',
+    tags: ['website-lead', 'homepage'],
+  };
+  if (firstName) payload.firstName = firstName;
+  if (lastName) payload.lastName = lastName;
+  if (phone) payload.phone = phone;
 
   try {
     const upstream = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
@@ -52,12 +68,7 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${ghlToken}`,
         Version: '2021-07-28',
       },
-      body: JSON.stringify({
-        locationId: GHL_LOCATION_ID,
-        email,
-        source: 'Website - Homepage Lead Bar',
-        tags: ['website-lead', 'homepage'],
-      }),
+      body: JSON.stringify(payload),
     });
     const json = await upstream.json();
     res.status(upstream.ok ? 200 : upstream.status).json({ success: upstream.ok, ...json });

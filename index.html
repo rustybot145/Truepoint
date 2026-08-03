@@ -23,7 +23,7 @@
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      {"@type":"Question","name":"How much does the system cost?","acceptedAnswer":{"@type":"Answer","text":"The Full Calendar System starts at $97/mo plus a $197 setup. The Full Lead System is $297/mo plus a $497 setup. Custom builds are scoped on a free call."}},
+      {"@type":"Question","name":"How much does the system cost?","acceptedAnswer":{"@type":"Answer","text":"The Full Calendar System is $97/mo. The Full Lead System is $297/mo. No setup fee on either. Custom builds are scoped on a free call."}},
       {"@type":"Question","name":"How long does setup take?","acceptedAnswer":{"@type":"Answer","text":"Most systems are live in about a week."}},
       {"@type":"Question","name":"Do you work with businesses outside Phoenix?","acceptedAnswer":{"@type":"Answer","text":"Yes — everything is done remotely and works anywhere."}}
     ]
@@ -186,6 +186,17 @@
       background: rgba(0,194,255,0.08); border: 1px solid rgba(0,194,255,0.28);
       border-radius: 8px; padding: 16px 20px; font-size: 0.88rem; color: #fff;
     }
+
+    /* ── LEAD CAPTURE — STEP 2 (name + phone, drops down after email) ── */
+    .lead-step2 {
+      max-width: 440px; margin: 0 auto;
+      max-height: 0; overflow: hidden; opacity: 0;
+      transition: max-height 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease, margin-top 0.5s ease;
+    }
+    .lead-step2.open { max-height: 500px; opacity: 1; margin-top: 14px; }
+    .lead-step2-label { font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
+    .lead-step2-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    @media (max-width: 520px) { .lead-step2-row { flex-direction: column; } }
     .hero-stat-line {
       margin-top: 40px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.08);
       font-size: 0.85rem; color: rgba(255,255,255,0.6); max-width: 460px; margin-left: auto; margin-right: auto;
@@ -399,6 +410,17 @@
         <input type="email" id="leadEmail" name="email" class="lead-input" placeholder="you@yourbusiness.com" required maxlength="254" autocomplete="email">
         <button type="submit" class="lead-btn">Get Started</button>
       </form>
+
+      <form id="leadStep2Form" onsubmit="handleLeadStep2(event)" class="lead-step2">
+        <div class="lead-step2-label">Almost done — how should we reach you?</div>
+        <div class="lead-step2-row">
+          <input type="text" id="leadFirst" class="lead-input" placeholder="First name" required maxlength="60" autocomplete="given-name">
+          <input type="text" id="leadLast" class="lead-input" placeholder="Last name" required maxlength="60" autocomplete="family-name">
+        </div>
+        <input type="tel" id="leadPhone" class="lead-input" placeholder="Phone number" required maxlength="20" autocomplete="tel" style="width:100%;margin-bottom:10px;">
+        <button type="submit" class="lead-btn" style="width:100%;">Submit</button>
+      </form>
+
       <div id="leadSuccess" class="lead-success">✓ Got it — we'll reach out shortly.</div>
       <p class="lead-microcopy">Takes 10 seconds. No spam, just a real conversation about your business.</p>
 
@@ -426,7 +448,7 @@
         </div>
         <div class="card-h">Full Calendar System</div>
         <div class="card-price">$97<span>/mo</span></div>
-        <div class="card-p">Booking page with deposits, plus texts that bring old customers back automatically. $197 setup. Built for solo detailers and PPF shops.</div>
+        <div class="card-p">Booking page with deposits, plus texts that bring old customers back automatically. No setup fee. Built for solo detailers and PPF shops.</div>
         <a href="services.html" class="btn-ghost-sm">See full details<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
       <div class="card fade-up d2">
@@ -435,7 +457,7 @@
         </div>
         <div class="card-h">Full Lead System</div>
         <div class="card-price">$297<span>/mo</span></div>
-        <div class="card-p">Missed-call text-back, quote follow-up, and review requests. $497 setup. Built for repair shops and collision/body shops.</div>
+        <div class="card-p">Missed-call text-back, quote follow-up, and review requests. No setup fee. Built for repair shops and collision/body shops.</div>
         <a href="services.html" class="btn-ghost-sm">See full details<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
       <div class="card fade-up d3">
@@ -444,7 +466,7 @@
         </div>
         <div class="card-h">Custom Build</div>
         <div class="card-price" style="font-size:1.15rem;">Scoped on a call</div>
-        <div class="card-p">Multiple locations or a workflow that's genuinely your own. Typically starts around $997 setup. We build around what's actually broken.</div>
+        <div class="card-p">Multiple locations or a workflow that's genuinely your own. No setup fee. We build around what's actually broken.</div>
         <a href="services.html" class="btn-ghost-sm">See full details<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
     </div>
@@ -597,12 +619,13 @@
 </script>
 
 <script>
+var leadEmailValue = '';
+
 async function handleLeadSubmit(e) {
   e.preventDefault();
   var form = e.target;
   var btn = form.querySelector('.lead-btn');
   var emailInput = document.getElementById('leadEmail');
-  var originalText = btn.textContent;
   btn.textContent = 'Sending...';
   btn.disabled = true;
   try {
@@ -613,7 +636,40 @@ async function handleLeadSubmit(e) {
     });
     var json = await res.json();
     if (json.success) {
+      leadEmailValue = emailInput.value;
       form.style.display = 'none';
+      document.getElementById('leadStep2Form').classList.add('open');
+      document.getElementById('leadFirst').focus();
+    } else {
+      btn.textContent = 'Try again';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    btn.textContent = 'Network error — try again';
+    btn.disabled = false;
+  }
+}
+
+async function handleLeadStep2(e) {
+  e.preventDefault();
+  var form = e.target;
+  var btn = form.querySelector('.lead-btn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  try {
+    var res = await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: leadEmailValue,
+        firstName: document.getElementById('leadFirst').value,
+        lastName: document.getElementById('leadLast').value,
+        phone: document.getElementById('leadPhone').value
+      })
+    });
+    var json = await res.json();
+    if (json.success) {
+      form.classList.remove('open');
       document.getElementById('leadSuccess').style.display = 'block';
     } else {
       btn.textContent = 'Try again';
