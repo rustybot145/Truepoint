@@ -86,36 +86,61 @@ export default async function handler(req, res) {
       return;
     }
 
+    const contactId = json.contact ? json.contact.id : json.id;
+
     // Only create the pipeline card on step 1 (email only) — step 2 just enriches
     // the same contact and shouldn't spawn a second card in "Form Filled out."
-    if (isFirstStep) {
-      const contactId = json.contact ? json.contact.id : json.id;
-      if (contactId) {
-        try {
-          const oppRes = await fetch('https://services.leadconnectorhq.com/opportunities/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${ghlToken}`,
-              Version: '2021-07-28',
-            },
-            body: JSON.stringify({
-              pipelineId: GHL_PIPELINE_ID,
-              locationId: GHL_LOCATION_ID,
-              contactId,
-              name: `Website Lead — ${email}`,
-              pipelineStageId: GHL_STAGE_FORM_FILLED_OUT,
-              status: 'open',
-            }),
-          });
-          if (!oppRes.ok) {
-            console.error('Opportunity creation failed:', await oppRes.text());
-          }
-        } catch (oppErr) {
-          // Contact capture is the critical path — don't fail the whole request
-          // just because the pipeline card didn't get created.
-          console.error('Opportunity creation error:', oppErr);
+    if (isFirstStep && contactId) {
+      try {
+        const oppRes = await fetch('https://services.leadconnectorhq.com/opportunities/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${ghlToken}`,
+            Version: '2021-07-28',
+          },
+          body: JSON.stringify({
+            pipelineId: GHL_PIPELINE_ID,
+            locationId: GHL_LOCATION_ID,
+            contactId,
+            name: `Website Lead — ${email}`,
+            pipelineStageId: GHL_STAGE_FORM_FILLED_OUT,
+            status: 'open',
+          }),
+        });
+        if (!oppRes.ok) {
+          console.error('Opportunity creation failed:', await oppRes.text());
         }
+      } catch (oppErr) {
+        // Contact capture is the critical path — don't fail the whole request
+        // just because the pipeline card didn't get created.
+        console.error('Opportunity creation error:', oppErr);
+      }
+    }
+
+    // Step 2 only (phone just came in) — send one automatic follow-up text.
+    // Wording approved by Ben 2026-08-03 — edit here if it ever changes.
+    if (!isFirstStep && phone && contactId) {
+      try {
+        const smsRes = await fetch('https://services.leadconnectorhq.com/conversations/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${ghlToken}`,
+            Version: '2021-04-15',
+          },
+          body: JSON.stringify({
+            type: 'SMS',
+            contactId,
+            message: `Hey ${firstName || 'there'} — it's Ben with True Point Digital, thanks for reaching out. We build booking, deposit, and follow-up systems for shops like yours. Want me to send over what it'd look like for your business, or would a quick call be easier?`,
+          }),
+        });
+        if (!smsRes.ok) {
+          console.error('Follow-up SMS failed:', await smsRes.text());
+        }
+      } catch (smsErr) {
+        // Contact capture is still the critical path — don't fail the request over the text.
+        console.error('Follow-up SMS error:', smsErr);
       }
     }
 
