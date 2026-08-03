@@ -347,6 +347,7 @@
     .fade-up.d1 { transition-delay: 0.08s; }
     .fade-up.d2 { transition-delay: 0.16s; }
     .fade-up.d3 { transition-delay: 0.24s; }
+    #pricing, #contact, #leadForm { scroll-margin-top: 88px; }
     @media (max-width: 1010px) { .nav-email { display: none !important; } }
   </style>
   <script>
@@ -362,8 +363,8 @@
     <a href="index.html" class="nav-logo-text">TruePoint<span>.</span></a>
     <div class="nav-links">
       <a href="index.html" class="nav-link active">Home</a>
-      <a href="services.html" class="nav-link">Services</a>
-      <a href="contact.html" class="nav-link">Contact</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="#contact" class="nav-link">Contact</a>
     </div>
     <div class="nav-actions">
       <a href="tel:6029037259" class="nav-phone">
@@ -371,7 +372,7 @@
         602-903-7259
       </a>
       <a href="mailto:truepointdigitalbp@gmail.com" class="nav-phone nav-email"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00C2FF" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg>truepointdigitalbp@gmail.com</a>
-      <a href="contact.html" class="btn-primary">Book Your Free Call</a>
+      <a href="#leadForm" class="btn-primary">Get Started</a>
       <button id="mob-btn" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="mob-menu" onclick="this.setAttribute('aria-expanded', document.getElementById('mob-menu').classList.toggle('open'))" style="background:none;border:none;cursor:pointer;display:none;flex-direction:column;gap:5px;padding:4px;">
         <span style="display:block;width:22px;height:2px;background:#fff;border-radius:1px;"></span>
         <span style="display:block;width:22px;height:2px;background:#fff;border-radius:1px;"></span>
@@ -381,11 +382,11 @@
   </div>
   <div id="mob-menu" style="flex-direction:column;background:#111;border-top:1px solid rgba(255,255,255,0.06);padding:24px 28px;gap:20px;">
     <a href="index.html" class="nav-link" style="font-size:.9rem;">Home</a>
-    <a href="services.html" class="nav-link" style="font-size:.9rem;">Services</a>
-    <a href="contact.html" class="nav-link" style="font-size:.9rem;">Contact</a>
+    <a href="#pricing" class="nav-link" style="font-size:.9rem;">Pricing</a>
+    <a href="#contact" class="nav-link" style="font-size:.9rem;">Contact</a>
     <a href="tel:6029037259" style="color:#00C2FF;font-size:.9rem;font-weight:600;text-decoration:none;">602-903-7259</a>
     <a href="mailto:truepointdigitalbp@gmail.com" style="color:#00C2FF;font-size:.9rem;font-weight:600;text-decoration:none;word-break:break-all;">truepointdigitalbp@gmail.com</a>
-    <a href="contact.html" class="btn-primary" style="text-align:center;margin-top:4px;">Book Your Free Call</a>
+    <a href="#leadForm" class="btn-primary" style="text-align:center;margin-top:4px;">Get Started</a>
   </div>
 </nav>
 
@@ -466,7 +467,6 @@
           <li>Every job logged in one place</li>
         </ul>
         <div class="card-note">For solo detailers and ceramic &amp; PPF shops. No setup fee.</div>
-        <a href="services.html" class="btn-ghost-sm">See full details<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
       <div class="card fade-up d2">
         <div class="card-icon">
@@ -482,7 +482,6 @@
           <li>Referral tracker for shops and tow companies</li>
         </ul>
         <div class="card-note">For repair shops and collision &amp; body shops. No setup fee.</div>
-        <a href="services.html" class="btn-ghost-sm">See full details<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
       <div class="card fade-up d3">
         <div class="card-icon">
@@ -497,7 +496,6 @@
           <li>Quoted once the call surfaces the real problem</li>
         </ul>
         <div class="card-note">For setups the first two don't cover. No setup fee.</div>
-        <a href="services.html" class="btn-ghost-sm">See full details<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
     </div>
   </div>
@@ -506,14 +504,14 @@
 <div class="divider"></div>
 
 <!-- CTA -->
-<section class="section cta-band">
+<section class="section cta-band" id="contact">
   <div class="cta-band-inner fade-up">
     <div>
-      <span class="section-label" style="display:block;margin-bottom:12px;">Ready to Get Started?</span>
+      <span class="section-label" style="display:block;margin-bottom:12px;">Ready When You Are</span>
       <h2>Not Sure Which Package<br><em>You Actually Need?</em></h2>
     </div>
     <div class="cta-band-action">
-      <a href="contact.html" class="btn-primary" style="padding:15px 36px;font-size:0.85rem;">Book Your Free Call</a>
+      <a href="#leadForm" class="btn-primary" style="padding:15px 36px;font-size:0.85rem;">Tell Us What's Broken</a>
       <p class="cta-sub">Or call us: <a href="tel:6029037259">602-903-7259</a></p>
     </div>
   </div>
@@ -530,12 +528,10 @@
       </div>
       <div class="footer-cols">
         <div>
-          <div class="footer-col-label">Pages</div>
+          <div class="footer-col-label">Sections</div>
           <div class="footer-links">
-            <a href="index.html" class="footer-link">Home</a>
-            <a href="services.html" class="footer-link">Services</a>
-            
-            <a href="contact.html" class="footer-link">Contact</a>
+            <a href="#pricing" class="footer-link">Pricing</a>
+            <a href="#contact" class="footer-link">Contact</a>
           </div>
         </div>
         <div>
@@ -712,7 +708,14 @@ async function handleLeadStep2(e) {
 }
 </script>
 
-<script src="https://widgets.leadconnectorhq.com/loader.js" data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js" data-widget-id="6a6b98476e411e9f6721b3c1" data-source="WEB_USER"></script>
+<script>
+  // In-page anchors don't unload the page, so close the mobile menu manually.
+  document.getElementById('mob-menu').addEventListener('click', function (e) {
+    if (!e.target.closest('a')) return;
+    this.classList.remove('open');
+    document.getElementById('mob-btn').setAttribute('aria-expanded', 'false');
+  });
+</script>
 
 </body>
 </html>
