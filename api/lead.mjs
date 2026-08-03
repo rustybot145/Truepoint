@@ -13,6 +13,21 @@ const GHL_LOCATION_ID = '5mYqhmiB4HEf6r0CRGoP';
 const GHL_PIPELINE_ID = 'pPxe0mptXps4zahDHmoL'; // Business Pipeline
 const GHL_STAGE_FORM_FILLED_OUT = '572834fe-396b-4093-ac34-b9754d2fa4b2'; // "Form Filled out" stage
 
+// GHL expects E.164 (+16021234567). A raw "(602) 123-4567" or "602-123-4567"
+// from the input can get silently dropped by the upstream API — this is the
+// most common reason a phone number "doesn't go through" on a CRM integration.
+function toE164(raw) {
+  const digits = raw.replace(/\D/g, '');
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`;
+  return '';
+}
+
+function friendlyPhone(e164) {
+  const m = e164.match(/^\+1(\d{3})(\d{3})(\d{4})$/);
+  return m ? `(${m[1]}) ${m[2]}-${m[3]}` : e164;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ success: false, message: 'Method not allowed' });
@@ -44,8 +59,18 @@ export default async function handler(req, res) {
   // Length caps mirror the HTML maxlength attributes — those are client-side only and
   // trivially bypassed by posting to this endpoint directly, so enforce them here too.
   const firstName = (data.firstName || '').trim().slice(0, 60);
-  const phone = (data.phone || '').trim().slice(0, 20);
-  const isFirstStep = !firstName && !phone;
+  const rawPhone = (data.phone || '').trim().slice(0, 20);
+  const phone = rawPhone ? toE164(rawPhone) : '';
+  const isFirstStep = !firstName && !rawPhone;
+
+  if (rawPhone && !phone) {
+    res.status(400).json({ success: false, message: 'Valid US phone number required' });
+    return;
+  }
+
+  // Returned by step 1's response, passed back on step 2 so we can update the
+  // exact same pipeline card instead of searching for it.
+  const incomingOppId = (data.oppId || '').trim().slice(0, 60);
 
   // Accept either name — the Vercel var is GHLMCP, local .env uses GHL_API_KEY.
   const ghlToken = process.env.GHLMCP || process.env.GHL_API_KEY;
@@ -87,6 +112,7 @@ export default async function handler(req, res) {
     }
 
     const contactId = json.contact ? json.contact.id : json.id;
+    let createdOppId = null;
 
     // Only create the pipeline card on step 1 (email only) — step 2 just enriches
     // the same contact and shouldn't spawn a second card in "Form Filled out."
@@ -108,8 +134,11 @@ export default async function handler(req, res) {
             status: 'open',
           }),
         });
+        const oppJson = await oppRes.json();
         if (!oppRes.ok) {
-          console.error('Opportunity creation failed:', await oppRes.text());
+          console.error('Opportunity creation failed:', oppJson);
+        } else {
+          createdOppId = oppJson.opportunity ? oppJson.opportunity.id : oppJson.id;
         }
       } catch (oppErr) {
         // Contact capture is the critical path — don't fail the whole request
@@ -118,7 +147,30 @@ export default async function handler(req, res) {
       }
     }
 
-    res.status(200).json({ success: true });
+    // Step 2 — rename the same pipeline card to the lead's actual name + phone,
+    // so that info is visible right on the Opportunities board without having
+    // to click into the linked contact.
+    if (!isFirstStep && incomingOppId) {
+      try {
+        const label = [firstName, phone ? friendlyPhone(phone) : null].filter(Boolean).join(' — ') || email;
+        const renameRes = await fetch(`https://services.leadconnectorhq.com/opportunities/${incomingOppId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${ghlToken}`,
+            Version: '2021-07-28',
+          },
+          body: JSON.stringify({ name: label }),
+        });
+        if (!renameRes.ok) {
+          console.error('Opportunity rename failed:', await renameRes.text());
+        }
+      } catch (renameErr) {
+        console.error('Opportunity rename error:', renameErr);
+      }
+    }
+
+    res.status(200).json({ success: true, oppId: createdOppId });
   } catch (err) {
     res.status(502).json({ success: false, message: 'Upstream error' });
   }

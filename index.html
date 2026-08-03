@@ -712,6 +712,7 @@
 
 <script>
 var leadEmailValue = '';
+var leadOppIdValue = '';
 
 async function handleLeadSubmit(e) {
   e.preventDefault();
@@ -729,6 +730,7 @@ async function handleLeadSubmit(e) {
     var json = await res.json();
     if (json.success) {
       leadEmailValue = emailInput.value;
+      leadOppIdValue = json.oppId || '';
       form.style.display = 'none';
       document.getElementById('leadStep2Form').classList.add('open');
       document.getElementById('leadFirst').focus();
@@ -754,6 +756,7 @@ async function handleLeadStep2(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: leadEmailValue,
+        oppId: leadOppIdValue,
         firstName: document.getElementById('leadFirst').value,
         phone: document.getElementById('leadPhone').value
       })
