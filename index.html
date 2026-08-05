@@ -413,6 +413,23 @@
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1773308227182293');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1773308227182293&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
 </head>
 <body>
 
@@ -795,6 +812,10 @@ async function handleLeadStep2(e) {
     if (json.success) {
       form.classList.remove('open');
       document.getElementById('leadSuccess').style.display = 'block';
+      // Fired here, not on page load — this is where a visitor becomes a real
+      // lead (name + phone + business info submitted), which is what the Meta
+      // ad's conversion event needs to optimize toward.
+      if (typeof fbq === 'function') fbq('track', 'Lead');
     } else {
       btn.textContent = 'Try again';
       btn.disabled = false;
