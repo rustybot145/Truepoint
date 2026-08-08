@@ -23,11 +23,6 @@ function toE164(raw) {
   return '';
 }
 
-function friendlyPhone(e164) {
-  const m = e164.match(/^\+1(\d{3})(\d{3})(\d{4})$/);
-  return m ? `(${m[1]}) ${m[2]}-${m[3]}` : e164;
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ success: false, message: 'Method not allowed' });
@@ -48,37 +43,13 @@ export default async function handler(req, res) {
     return;
   }
 
+  // Length caps mirror the HTML maxlength attributes — those are client-side only
+  // and trivially bypassed by posting to this endpoint directly, so enforce them here.
   const email = (data.email || '').trim().toLowerCase().slice(0, 254);
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    res.status(400).json({ success: false, message: 'Valid email required' });
-    return;
-  }
-
-  // Optional — present on the step-2 submit (name + phone), absent on step 1 (email only).
-  // Upsert matches on email, so this updates the same contact rather than creating a second one.
-  // Length caps mirror the HTML maxlength attributes — those are client-side only and
-  // trivially bypassed by posting to this endpoint directly, so enforce them here too.
   const firstName = (data.firstName || '').trim().slice(0, 60);
   const rawPhone = (data.phone || '').trim().slice(0, 20);
-  const phone = rawPhone ? toE164(rawPhone) : '';
   const businessName = (data.businessName || '').trim().slice(0, 100);
   const businessNiche = (data.businessNiche || '').trim().slice(0, 100);
-  const isFirstStep = !firstName && !rawPhone;
-
-  if (rawPhone && !phone) {
-    res.status(400).json({ success: false, message: 'Valid US phone number required' });
-    return;
-  }
-
-  // Returned by step 1's response, passed back on step 2 so we can update the
-  // exact same pipeline card instead of searching for it.
-  const incomingOppId = (data.oppId || '').trim().slice(0, 60);
-
-  // Date the lead first came in (step 1), not whenever step 2 happens to be
-  // completed — threaded through the same way as oppId so a same-day rename
-  // doesn't silently overwrite it with a later date.
-  const incomingLeadDate = (data.leadDate || '').trim().slice(0, 20);
-  const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   // Real value from the required consent checkbox — captured but not yet sent to
   // GHL. TODO once the "Wants SMS" custom field exists in GHL: add it to `payload`
@@ -86,6 +57,22 @@ export default async function handler(req, res) {
   // Not guessing the key here — a wrong key fails silently and is worse than leaving
   // this as a visible gap. See Packages.md.
   const wantsSms = data.wantsSms === true;
+
+  // Nothing reaches GHL until the whole form is filled in. The contact and the
+  // pipeline card are created once, from one complete submission, so the
+  // Workflows never trigger on a half-empty contact and then get patched after.
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !firstName || !businessName || !businessNiche || !wantsSms) {
+    res.status(400).json({ success: false, message: 'All fields are required' });
+    return;
+  }
+
+  const phone = toE164(rawPhone);
+  if (!phone) {
+    res.status(400).json({ success: false, message: 'Valid US phone number required' });
+    return;
+  }
+
+  const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   // Accept either name — the Vercel var is GHLMCP, local .env uses GHL_API_KEY.
   const ghlToken = process.env.GHLMCP || process.env.GHL_API_KEY;
@@ -100,12 +87,12 @@ export default async function handler(req, res) {
   const payload = {
     locationId: GHL_LOCATION_ID,
     email,
+    firstName,
+    phone,
+    companyName: businessName,
     source: 'Social Media Landing Page',
     tags,
   };
-  if (firstName) payload.firstName = firstName;
-  if (phone) payload.phone = phone;
-  if (businessName) payload.companyName = businessName;
 
   try {
     const upstream = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
@@ -128,11 +115,9 @@ export default async function handler(req, res) {
     }
 
     const contactId = json.contact ? json.contact.id : json.id;
-    let createdOppId = null;
 
-    // Only create the pipeline card on step 1 (email only) — step 2 just enriches
-    // the same contact and shouldn't spawn a second card in "Form Filled out."
-    if (isFirstStep && contactId) {
+    // One card, created once, already named — no follow-up rename pass.
+    if (contactId) {
       try {
         const oppRes = await fetch('https://services.leadconnectorhq.com/opportunities/', {
           method: 'POST',
@@ -145,16 +130,13 @@ export default async function handler(req, res) {
             pipelineId: GHL_PIPELINE_ID,
             locationId: GHL_LOCATION_ID,
             contactId,
-            name: `Website Lead — ${email} — ${today}`,
+            name: `${firstName} — ${businessName} — ${today}`,
             pipelineStageId: GHL_STAGE_FORM_FILLED_OUT,
             status: 'open',
           }),
         });
-        const oppJson = await oppRes.json();
         if (!oppRes.ok) {
-          console.error('Opportunity creation failed:', oppJson);
-        } else {
-          createdOppId = oppJson.opportunity ? oppJson.opportunity.id : oppJson.id;
+          console.error('Opportunity creation failed:', await oppRes.json());
         }
       } catch (oppErr) {
         // Contact capture is the critical path — don't fail the whole request
@@ -163,30 +145,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // Step 2 — rename the same pipeline card to the lead's name, business name,
-    // and the date they first came in (step 1's date, not today, in case step 2
-    // happens later) — kept short on purpose, not every field crammed in.
-    if (!isFirstStep && incomingOppId) {
-      try {
-        const label = [firstName, businessName, incomingLeadDate || today].filter(Boolean).join(' — ') || email;
-        const renameRes = await fetch(`https://services.leadconnectorhq.com/opportunities/${incomingOppId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${ghlToken}`,
-            Version: '2021-07-28',
-          },
-          body: JSON.stringify({ name: label }),
-        });
-        if (!renameRes.ok) {
-          console.error('Opportunity rename failed:', await renameRes.text());
-        }
-      } catch (renameErr) {
-        console.error('Opportunity rename error:', renameErr);
-      }
-    }
-
-    res.status(200).json({ success: true, oppId: createdOppId, leadDate: today });
+    res.status(200).json({ success: true });
   } catch (err) {
     res.status(502).json({ success: false, message: 'Upstream error' });
   }

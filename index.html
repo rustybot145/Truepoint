@@ -535,10 +535,10 @@
         <div class="card-h">Full Calendar System</div>
         <div class="card-price card-price-sale"><span class="price-old">$97</span>$48.50<span>/mo</span></div>
         <ul class="card-list">
-          <li>Booking page with a deposit built in</li>
-          <li>Reminder texts before every appointment</li>
-          <li>Rebooking texts to past customers</li>
-          <li>Every job logged in one place</li>
+          <li>Booking page</li>
+          <li>Reminder texts</li>
+          <li>Rebooking texts</li>
+          <li>Job tracking</li>
         </ul>
         <div class="card-note">For solo detailers and ceramic &amp; PPF shops. No setup fee.</div>
       </div>
@@ -549,11 +549,11 @@
         <div class="card-h">Full Lead System</div>
         <div class="card-price card-price-sale"><span class="price-old">$297</span>$148.50<span>/mo</span></div>
         <ul class="card-list">
-          <li>Everything in the Calendar System</li>
-          <li>Missed-call text-back on every unanswered call</li>
-          <li>Automatic follow-up on every quote</li>
-          <li>Review requests after every job</li>
-          <li>Referral tracker for shops and tow companies</li>
+          <li>Everything above</li>
+          <li>Missed-call text-back</li>
+          <li>Quote follow-up</li>
+          <li>Review automation</li>
+          <li>Referral tracker</li>
         </ul>
         <div class="card-note">For repair shops and collision &amp; body shops. No setup fee.</div>
       </div>
@@ -564,10 +564,10 @@
         <div class="card-h">Custom Build</div>
         <div class="card-price" style="font-size:1.15rem;">Scoped on a call</div>
         <ul class="card-list">
-          <li>A call where you walk through what's broken</li>
-          <li>Built around your actual workflow</li>
-          <li>Fits multiple locations and shops</li>
-          <li>Quoted once the call surfaces the real problem</li>
+          <li>Discovery call</li>
+          <li>Custom workflow</li>
+          <li>Multi-location</li>
+          <li>Custom quote</li>
         </ul>
         <div class="card-note">For setups the first two don't cover. No setup fee.</div>
       </div>
@@ -736,38 +736,16 @@
 
 <script>
 var leadEmailValue = '';
-var leadOppIdValue = '';
-var leadDateValue = '';
 
-async function handleLeadSubmit(e) {
+// Step 1 is a UI step only — it never touches the API. Sending the email on its
+// own created the contact and fired the Workflows before the name, phone, and
+// business were known; everything now goes to GHL in one submit on step 2.
+function handleLeadSubmit(e) {
   e.preventDefault();
-  var form = e.target;
-  var btn = form.querySelector('.lead-btn');
-  var emailInput = document.getElementById('leadEmail');
-  btn.textContent = 'Sending...';
-  btn.disabled = true;
-  try {
-    var res = await fetch('/api/lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: emailInput.value })
-    });
-    var json = await res.json();
-    if (json.success) {
-      leadEmailValue = emailInput.value;
-      leadOppIdValue = json.oppId || '';
-      leadDateValue = json.leadDate || '';
-      form.style.display = 'none';
-      document.getElementById('leadStep2Form').classList.add('open');
-      document.getElementById('leadFirst').focus();
-    } else {
-      btn.textContent = 'Try again';
-      btn.disabled = false;
-    }
-  } catch (err) {
-    btn.textContent = 'Network error — try again';
-    btn.disabled = false;
-  }
+  leadEmailValue = document.getElementById('leadEmail').value;
+  e.target.style.display = 'none';
+  document.getElementById('leadStep2Form').classList.add('open');
+  document.getElementById('leadFirst').focus();
 }
 
 async function handleLeadStep2(e) {
@@ -782,8 +760,6 @@ async function handleLeadStep2(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: leadEmailValue,
-        oppId: leadOppIdValue,
-        leadDate: leadDateValue,
         firstName: document.getElementById('leadFirst').value,
         phone: document.getElementById('leadPhone').value,
         businessName: document.getElementById('leadBusinessName').value,
