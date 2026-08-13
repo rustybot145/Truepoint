@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Getting Started — True Point Digital</title>
+<style>
+:root{
+  --ground:#0A0A0A; --panel:#111214; --ink:#FFF; --ink-soft:#9BA4AA; --ink-faint:#6B747A;
+  --rule:rgba(255,255,255,.09); --rule-hi:rgba(255,255,255,.16);
+  --accent:#00C2FF; --accent-hi:#1DD0FF; --accent-wash:rgba(0,194,255,.08);
+  --alert:#FF4D4D; --field:#0F1113; --field-edge:rgba(255,255,255,.14);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;background:var(--ground)}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font:400 17px/1.5 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+
+#bar{position:sticky;top:0;z-index:20;background:rgba(10,10,10,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+#bar .in{max-width:36rem;margin:0 auto;padding:.7rem 1.25rem;display:flex;align-items:center;gap:.85rem}
+#track{flex:1;height:2px;background:var(--rule-hi);border-radius:2px;overflow:hidden}
+#fill{height:100%;width:0;background:var(--accent);box-shadow:0 0 8px var(--accent);transition:width .3s}
+#count{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.73rem;color:var(--ink-faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+main{max-width:36rem;margin:0 auto;padding:0 1.25rem 4rem}
+header.top{padding:2.8rem 0 2rem}
+.brand{display:flex;align-items:center;gap:.55rem;margin-bottom:1.4rem}
+.brand i{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.brand span{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.71rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft)}
+h1{margin:0 0 .7rem;font-size:clamp(1.9rem,7vw,2.6rem);line-height:1.05;letter-spacing:-.03em;font-weight:800;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{margin:0;color:var(--ink-soft);font-size:1.02rem}
+
+section{border-top:1px solid var(--rule);margin-top:2.4rem;padding-top:1.5rem}
+.sec{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.69rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 1.5rem}
+
+.q{display:flex;flex-direction:column;gap:.6rem;margin-bottom:2rem}
+.q>label,.q>.qt{font-size:1.02rem;font-weight:600;line-height:1.35;text-wrap:balance}
+.hint{font-size:.85rem;color:var(--ink-faint);margin:-.2rem 0 0}
+.lbl{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin:.3rem 0 -.3rem}
+
+input,textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--field);
+  border:1px solid var(--field-edge);border-radius:6px;padding:.6rem .7rem;-webkit-appearance:none;appearance:none}
+textarea{min-height:4.6rem;resize:vertical;line-height:1.5}
+input:focus,textarea:focus{border-color:var(--accent)}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input::placeholder,textarea::placeholder{color:var(--ink-faint)}
+input.bad{border-color:var(--alert)}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.row .grow{flex:1;min-width:6rem}
+.u{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.78rem;color:var(--ink-faint);flex:none}
+
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{font:inherit;font-size:.9rem;cursor:pointer;padding:.42rem .8rem;border-radius:999px;
+  border:1px solid var(--field-edge);background:var(--field);color:var(--ink-soft);transition:.12s}
+.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#04222C;font-weight:700}
+.chip:hover{border-color:var(--accent)}
+
+.picks{display:grid;gap:.5rem}
+@media(min-width:520px){.picks{grid-template-columns:1fr 1fr}}
+.pick{text-align:left;font:inherit;cursor:pointer;padding:.9rem;border-radius:8px;background:var(--panel);
+  border:1px solid var(--field-edge);color:var(--ink);transition:.12s}
+.pick[aria-pressed=true]{border-color:var(--accent);background:var(--accent-wash)}
+
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+.tw{overflow-x:auto}
+th{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace;font-size:.64rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);font-weight:500;text-align:left;padding:0 .4rem .4rem 0;white-space:nowrap}
+td{padding:0 .4rem .4rem 0}
+td:last-child,th:last-child{padding-right:0}
+td input{padding:.48rem .55rem}
+.n{min-width:8.5rem} .sm{width:5.2rem}
+.add{align-self:start;font:inherit;font-size:.87rem;cursor:pointer;background:none;border:none;
+  color:var(--accent);padding:.2rem 0;text-decoration:underline;text-underline-offset:3px}
+
+.cond{display:none} .cond.show{display:flex;flex-direction:column;gap:.6rem}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+.send{margin-top:2.6rem;border-top:2px solid var(--accent);padding-top:1.4rem}
+#go{width:100%;font:inherit;font-weight:700;font-size:1.05rem;cursor:pointer;padding:.95rem;border-radius:8px;
+  border:1px solid var(--accent);background:var(--accent);color:#04222C;transition:.12s}
+#go:hover:not(:disabled){background:var(--accent-hi)}
+#go:disabled{opacity:.5;cursor:default}
+#msg{font-size:.88rem;color:var(--ink-faint);margin:.7rem 0 0;min-height:1.2em}
+#msg.bad{color:var(--alert)}
+footer{margin-top:2.5rem;font-size:.78rem;color:var(--ink-faint);text-align:center}
+
+#done{display:none;padding:4rem 0;text-align:center}
+#done.show{display:block}
+#done .tick{width:54px;height:54px;border-radius:50%;background:var(--accent-wash);border:1px solid var(--accent);
+  display:grid;place-items:center;margin:0 auto 1.3rem;color:var(--accent);font-size:1.6rem}
+#done h2{margin:0 0 .6rem;font-size:1.7rem;letter-spacing:-.02em}
+#done p{margin:0;color:var(--ink-soft)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="bar"><div class="in">
+  <div id="track"><div id="fill"></div></div>
+  <span id="count">0 of 11</span>
+</div></div>
+
+<main>
+<div id="form">
+
+<header class="top">
+  <div class="brand"><i></i><span>True Point Digital</span></div>
+  <h1 id="hi">Let's get you <em>booked out</em>.</h1>
+  <p class="lede">Most of this is already filled in. Fix anything wrong, answer the rest, hit send.</p>
+</header>
+
+<section>
+  <p class="sec">Your details</p>
+  <div class="q">
+    <input type="text" id="biz" maxlength="100" placeholder="Business name">
+    <div class="row">
+      <input class="grow" type="text" id="first" maxlength="60" placeholder="First name">
+      <input class="grow" type="text" id="last" maxlength="60" placeholder="Last name">
+    </div>
+    <div class="row">
+      <input class="grow" type="tel" id="phone" maxlength="20" placeholder="Phone">
+      <input class="grow" type="email" id="email" maxlength="254" placeholder="Email">
+    </div>
+    <input type="url" id="site" maxlength="200" placeholder="Website (skip if you don't have one)">
+    <input type="url" id="ig" maxlength="200" placeholder="Instagram">
+    <input type="url" id="gbp" maxlength="300" placeholder="Google Business Profile link">
+    <p class="lbl">Business address</p>
+    <input type="text" id="addr" maxlength="120" placeholder="Street">
+    <div class="row">
+      <input class="grow" type="text" id="city" maxlength="60" placeholder="City">
+      <input type="text" id="state" maxlength="30" style="max-width:5.5rem" placeholder="State">
+      <input type="text" id="zip" maxlength="12" style="max-width:6.5rem" placeholder="ZIP">
+    </div>
+    <p class="hint">Home address is fine. Never shown publicly.</p>
+  </div>
+</section>
+
+<section>
+  <p class="sec">Your schedule</p>
+
+  <div class="q">
+    <div class="qt" id="l1">What days and hours do you work?</div>
+    <div class="chips" data-multi id="days" role="group" aria-labelledby="l1">
+      <button type="button" class="chip" aria-pressed="false">Mon</button>
+      <button type="button" class="chip" aria-pressed="false">Tue</button>
+      <button type="button" class="chip" aria-pressed="false">Wed</button>
+      <button type="button" class="chip" aria-pressed="false">Thu</button>
+      <button type="button" class="chip" aria-pressed="false">Fri</button>
+      <button type="button" class="chip" aria-pressed="false">Sat</button>
+      <button type="button" class="chip" aria-pressed="false">Sun</button>
+    </div>
+    <input type="text" id="hours" maxlength="60" placeholder="What hours? e.g. 8am to 5pm">
+  </div>
+
+  <div class="q">
+    <div class="qt" id="l2">How long does each job take?</div>
+    <div class="tw"><table id="svc">
+      <thead><tr><th class="n">Service</th><th class="sm">Minutes</th><th class="sm">Price</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <button type="button" class="add" id="addsvc">+ add a service</button>
+    <p class="hint">Price change with vehicle size?</p>
+    <div class="chips" id="size" role="group" aria-labelledby="l2">
+      <button type="button" class="chip" aria-pressed="false">Yes</button>
+      <button type="button" class="chip" aria-pressed="false">No</button>
+    </div>
+  </div>
+
+  <div class="q">
+    <label for="perday">Most jobs in one day?</label>
+    <div class="row"><input type="number" id="perday" min="1" max="12" style="max-width:6rem" placeholder="3"><span class="u">a day</span></div>
+  </div>
+
+  <div class="q">
+    <label for="miles">How far will you drive?</label>
+    <div class="row"><input type="number" id="miles" style="max-width:6rem" placeholder="25"><span class="u">miles</span></div>
+  </div>
+
+  <div class="q">
+    <div class="qt" id="l5">Take a deposit to hold the slot?</div>
+    <p class="hint">This is what stops no-shows.</p>
+    <div class="chips" id="dep" data-reveal="depwrap" role="group" aria-labelledby="l5">
+      <button type="button" class="chip" aria-pressed="false">Yes</button>
+      <button type="button" class="chip" aria-pressed="false">No</button>
+    </div>
+    <div class="cond" id="depwrap">
+      <input type="text" id="depamt" maxlength="20" style="max-width:9rem" placeholder="$50 or 20%">
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="sec">Your numbers</p>
+
+  <div class="q">
+    <label for="ticket">What's an average job worth?</label>
+    <div class="row"><span class="u">$</span><input type="number" id="ticket" style="max-width:7.5rem" placeholder="250"></div>
+  </div>
+
+  <div class="q">
+    <div class="qt" id="l7">Slowest day of your week?</div>
+    <div class="chips" id="slow" role="group" aria-labelledby="l7">
+      <button type="button" class="chip" aria-pressed="false">Mon</button>
+      <button type="button" class="chip" aria-pressed="false">Tue</button>
+      <button type="button" class="chip" aria-pressed="false">Wed</button>
+      <button type="button" class="chip" aria-pressed="false">Thu</button>
+      <button type="button" class="chip" aria-pressed="false">Fri</button>
+      <button type="button" class="chip" aria-pressed="false">Sat</button>
+      <button type="button" class="chip" aria-pressed="false">Sun</button>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qt" id="l8">How long before someone's due again?</div>
+    <div class="chips" id="rebook" role="group" aria-labelledby="l8">
+      <button type="button" class="chip" aria-pressed="false">60 days</button>
+      <button type="button" class="chip" aria-pressed="false">90 days</button>
+      <button type="button" class="chip" aria-pressed="false">120 days</button>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qt" id="l9">Text people back when you miss a call?</div>
+    <div class="chips" id="missed" data-reveal="mcwrap" role="group" aria-labelledby="l9">
+      <button type="button" class="chip" aria-pressed="false">Yes</button>
+      <button type="button" class="chip" aria-pressed="false">No</button>
+    </div>
+    <div class="cond" id="mcwrap">
+      <input type="tel" id="mcnum" maxlength="20" placeholder="Number people call">
+    </div>
+  </div>
+</section>
+
+<section>
+  <p class="sec">What you want</p>
+
+  <div class="q">
+    <div class="qt" id="l10">What's the bigger problem right now?</div>
+    <div class="picks" id="prob" role="group" aria-labelledby="l10">
+      <button type="button" class="pick" aria-pressed="false">Not enough new customers</button>
+      <button type="button" class="pick" aria-pressed="false">Old customers don't come back</button>
+    </div>
+  </div>
+
+  <div class="q">
+    <label for="notes">Any questions, or anything else you want?</label>
+    <textarea id="notes" maxlength="1000" placeholder="Optional"></textarea>
+  </div>
+</section>
+
+<div class="hp"><label for="_gotcha">Leave blank</label><input type="text" id="_gotcha" tabindex="-1" autocomplete="off"></div>
+
+<div class="send">
+  <button type="button" id="go">Send it over</button>
+  <p id="msg"></p>
+</div>
+
+<footer>True Point Digital</footer>
+</div>
+
+<div id="done">
+  <div class="tick">&check;</div>
+  <h2>Got it.</h2>
+  <p>We'll take it from here and be in touch shortly.</p>
+</div>
+</main>
+
+<script>
+(function(){
+"use strict";
+
+/* ── BEN: fill this in per client from your research. ────────
+   Anything left "" just shows as an empty field.            */
+var PREFILL = {
+  headline: "Let's get you <em>booked out</em>.",
+  biz:"", first:"", last:"", phone:"", email:"", site:"", ig:"", gbp:"",
+  addr:"", city:"", state:"", zip:"",
+  tz:"America/Phoenix",
+  services:[["Interior + exterior detail","",""],["Interior only","",""],["Ceramic coating","",""]]
+};
+/* ─────────────────────────────────────────────────────────── */
+
+var KEY="tpd-onboarding";
+var $=function(s,r){return (r||document).querySelector(s);};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+var IDS=["biz","first","last","phone","email","site","ig","gbp","addr","city","state","zip",
+         "hours","perday","miles","depamt","ticket","mcnum","notes"];
+
+var tb=$("#svc tbody");
+function row(n,m,p){
+  var tr=document.createElement("tr");
+  tr.innerHTML='<td class="n"><input type="text" class="s-n" maxlength="80" placeholder="Service"></td>'+
+               '<td class="sm"><input type="number" class="s-m" placeholder="90"></td>'+
+               '<td class="sm"><input type="text" class="s-p" maxlength="20" placeholder="$250"></td>';
+  tr.querySelector(".s-n").value=n||""; tr.querySelector(".s-m").value=m||""; tr.querySelector(".s-p").value=p||"";
+  tb.appendChild(tr); return tr;
+}
+PREFILL.services.forEach(function(s){row(s[0],s[1],s[2]);});
+$("#addsvc").addEventListener("click",function(){row("","","").querySelector(".s-n").focus();save();});
+
+if(PREFILL.headline) $("#hi").innerHTML=PREFILL.headline;
+IDS.forEach(function(k){var e=document.getElementById(k); if(e&&PREFILL[k]) e.value=PREFILL[k];});
+
+/* chips */
+$$(".chips").forEach(function(g){
+  var multi=g.hasAttribute("data-multi");
+  g.addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b) return;
+    var on=b.getAttribute("aria-pressed")==="true";
+    if(!multi) $$(".chip",g).forEach(function(c){c.setAttribute("aria-pressed","false");});
+    b.setAttribute("aria-pressed",on?"false":"true");
+    reveal(g); save(); tally();
+  });
+});
+$$(".picks").forEach(function(g){
+  g.addEventListener("click",function(e){
+    var b=e.target.closest(".pick"); if(!b) return;
+    $$(".pick",g).forEach(function(c){c.setAttribute("aria-pressed","false");});
+    b.setAttribute("aria-pressed","true"); save(); tally();
+  });
+});
+function reveal(g){
+  var id=g.getAttribute("data-reveal"); if(!id) return;
+  var p=$$(".chip",g).filter(function(c){return c.getAttribute("aria-pressed")==="true";})[0];
+  $("#"+id).classList.toggle("show", !!p && p.textContent.trim().toLowerCase()!=="no");
+}
+function picked(sel){
+  var b=$$(sel+" .chip[aria-pressed=true], "+sel+" .pick[aria-pressed=true]")[0];
+  return b?b.textContent.trim():"";
+}
+function pickedAll(sel){
+  return $$(sel+" .chip[aria-pressed=true]").map(function(c){return c.textContent.trim();});
+}
+
+/* save / restore */
+function snap(){
+  return {f:IDS.reduce(function(o,i){var e=document.getElementById(i); if(e)o[i]=e.value; return o;},{}),
+    c:$$(".chips").map(function(g){return $$(".chip",g).map(function(c){return c.getAttribute("aria-pressed")==="true";});}),
+    p:$$(".picks").map(function(g){return $$(".pick",g).map(function(c){return c.getAttribute("aria-pressed")==="true";});}),
+    s:$$("#svc tbody tr").map(function(tr){return [tr.querySelector(".s-n").value,tr.querySelector(".s-m").value,tr.querySelector(".s-p").value];})};
+}
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(snap()));}catch(e){} }
+function restore(){
+  var r; try{r=localStorage.getItem(KEY);}catch(e){return;} if(!r) return;
+  var d; try{d=JSON.parse(r);}catch(e){return;}
+  if(d.s&&d.s.length){tb.innerHTML=""; d.s.forEach(function(s){row(s[0],s[1],s[2]);});}
+  if(d.f) Object.keys(d.f).forEach(function(i){var e=document.getElementById(i); if(e)e.value=d.f[i];});
+  if(d.c) $$(".chips").forEach(function(g,i){ if(!d.c[i])return;
+    $$(".chip",g).forEach(function(c,j){c.setAttribute("aria-pressed",d.c[i][j]?"true":"false");}); reveal(g);});
+  if(d.p) $$(".picks").forEach(function(g,i){ if(!d.p[i])return;
+    $$(".pick",g).forEach(function(c,j){c.setAttribute("aria-pressed",d.p[i][j]?"true":"false");});});
+}
+document.addEventListener("input",function(e){ if(e.target.matches("input,textarea")){save();tally();} });
+
+/* progress — the 11 questions */
+function done(){
+  var n=0;
+  if(pickedAll("#days").length && $("#hours").value.trim()) n++;
+  if($$("#svc tbody tr").some(function(tr){return tr.querySelector(".s-n").value.trim()&&tr.querySelector(".s-m").value;})) n++;
+  if(picked("#size")) n++;
+  if($("#perday").value) n++;
+  if($("#miles").value) n++;
+  if(picked("#dep") && (!$("#depwrap").classList.contains("show")||$("#depamt").value.trim())) n++;
+  if($("#ticket").value) n++;
+  if(picked("#slow")) n++;
+  if(picked("#rebook")) n++;
+  if(picked("#missed") && (!$("#mcwrap").classList.contains("show")||$("#mcnum").value.trim())) n++;
+  if(picked("#prob")) n++;
+  return n;
+}
+function tally(){ var n=done(); $("#fill").style.width=(n/11*100)+"%"; $("#count").textContent=n+" of 11"; }
+
+/* submit */
+function msg(t,bad){ var m=$("#msg"); m.textContent=t||""; m.classList.toggle("bad",!!bad); }
+
+$("#go").addEventListener("click",function(){
+  $$("input.bad").forEach(function(i){i.classList.remove("bad");});
+  var email=$("#email").value.trim(), phone=$("#phone").value.trim(), miss=[];
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ $("#email").classList.add("bad"); miss.push("a valid email"); }
+  if(phone.replace(/\D/g,"").length<10){ $("#phone").classList.add("bad"); miss.push("your phone number"); }
+  if(!$("#biz").value.trim()){ $("#biz").classList.add("bad"); miss.push("your business name"); }
+  if(miss.length){
+    msg("Just need "+miss.join(" and ")+".",true);
+    $("input.bad")[0].scrollIntoView({block:"center",behavior:"smooth"});
+    return;
+  }
+
+  var body={_gotcha:$("#_gotcha").value, tz:PREFILL.tz,
+    days:pickedAll("#days"), sizePricing:picked("#size"), deposit:picked("#dep"),
+    slowest:picked("#slow"), rebook:picked("#rebook"), missed:picked("#missed"), problem:picked("#prob"),
+    services:$$("#svc tbody tr").map(function(tr){
+      return {name:tr.querySelector(".s-n").value.trim(),min:tr.querySelector(".s-m").value,price:tr.querySelector(".s-p").value.trim()};
+    }).filter(function(s){return s.name;})};
+  IDS.forEach(function(i){var e=document.getElementById(i); if(e) body[i]=e.value.trim();});
+
+  $("#go").disabled=true; msg("Sending…");
+  fetch("/api/onboarding",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+    .then(function(res){
+      if(!res.ok||!res.j.success) throw new Error(res.j.message||"failed");
+      try{ localStorage.removeItem(KEY); }catch(e){}
+      $("#form").style.display="none"; $("#bar").style.display="none"; $("#done").classList.add("show");
+      window.scrollTo(0,0);
+    })
+    .catch(function(){
+      $("#go").disabled=false;
+      msg("That didn't go through. Try again, or text us and we'll sort it.",true);
+    });
+});
+
+restore(); tally();
+})();
+</script>
+</body>
+</html>
