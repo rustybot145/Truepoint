@@ -1,4 +1,5 @@
 import arcjet, { shield, slidingWindow } from '@arcjet/node';
+import { buildRows, renderNote, renderCsv } from './_answers.mjs';
 
 const aj = arcjet({
   key: process.env.ARCJET_KEY,
@@ -22,56 +23,45 @@ function toE164(raw) {
 
 const s = (v, max) => String(v == null ? '' : v).trim().slice(0, max);
 
-// The answers land as a note on the contact rather than custom fields, so this
-// needs nothing created in GHL first. Formatted for reading on a phone.
-function buildNote(d) {
-  const L = [];
-  const line = (k, v) => L.push(`${k}: ${v || '-'}`);
+// Emails the answers to Ben as a spreadsheet. The `onboarding-complete` tag in
+// GHL is passive — nothing announces a submission — so this is the only thing
+// that actually tells him a client finished the form.
+// Never allowed to fail the request: the client is done either way.
+async function emailAnswers(d, rows) {
+  const key = process.env.RESEND_API_KEY;
+  const to = process.env.ONBOARDING_NOTIFY_EMAIL;
+  if (!key || !to) {
+    console.error('Onboarding email skipped: RESEND_API_KEY or ONBOARDING_NOTIFY_EMAIL not set');
+    return false;
+  }
 
-  L.push('ONBOARDING FORM', '');
+  const biz = d.biz || 'Unknown business';
+  const slug = biz.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'client';
+  const date = new Date().toISOString().slice(0, 10);
 
-  L.push('-- BUSINESS --');
-  line('Business', d.biz);
-  line('Contact', [d.first, d.last].filter(Boolean).join(' '));
-  line('Phone', d.phone);
-  line('Email', d.email);
-  line('Address', [d.addr, d.city, d.state, d.zip].filter(Boolean).join(', '));
-  line('Website', d.site);
-  line('Instagram', d.ig);
-  line('Google', d.gbp);
-  L.push('');
-
-  L.push('-- SCHEDULE --');
-  line('Days', (d.days || []).join(', '));
-  line('Hours', d.hours);
-  L.push('Services:');
-  (d.services || []).forEach((sv) => {
-    if (!sv || !sv.name) return;
-    L.push(`  ${sv.name} - ${sv.min || '?'} min - ${sv.price || '?'}`);
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+    body: JSON.stringify({
+      // resend.dev is Resend's shared sender and only delivers to the account
+      // owner — fine here, since this only ever mails Ben. Set ONBOARDING_FROM
+      // to a truepoint.agency address once that domain is verified in Resend.
+      from: process.env.ONBOARDING_FROM || 'True Point Digital <onboarding@resend.dev>',
+      to: [to],
+      subject: `Onboarding form: ${biz}`,
+      text: `${biz} finished the onboarding form.\n\nAll ${rows.length} answers are in the attached spreadsheet.\n\n${renderNote(rows)}\n`,
+      attachments: [{
+        filename: `onboarding-${slug}-${date}.csv`,
+        content: Buffer.from(renderCsv(rows), 'utf8').toString('base64'),
+      }],
+    }),
   });
-  line('Price varies by vehicle size', d.sizePricing);
-  line('Max jobs/day', d.perday);
-  line('Drive radius', d.miles ? `${d.miles} mi` : '');
-  line('Deposit', [d.deposit, d.depamt].filter(Boolean).join(' '));
-  L.push('');
 
-  L.push('-- NUMBERS --');
-  line('Average job', d.ticket ? `$${d.ticket}` : '');
-  line('Slowest day', d.slowest);
-  line('Rebook after', d.rebook);
-  L.push('');
-
-  L.push('-- PHONE --');
-  line('Missed-call text-back', d.missed);
-  line('Rings on', d.mcnum);
-  L.push('');
-
-  L.push('-- WHAT THEY WANT --');
-  line('Bigger problem', d.problem);
-  L.push('Questions / requests:');
-  L.push(`  ${d.notes || '-'}`);
-
-  return L.join('\n');
+  if (!res.ok) {
+    console.error('Resend failed:', res.status, await res.text());
+    return false;
+  }
+  return true;
 }
 
 export default async function handler(req, res) {
@@ -198,7 +188,8 @@ export default async function handler(req, res) {
     // answers would be lost, so they get logged instead — recoverable from
     // Vercel's function logs rather than gone.
     let noteSaved = false;
-    const note = buildNote(d);
+    const rows = buildRows(d);
+    const note = renderNote(rows);
 
     // If the note fails, the answers are the only thing actually at risk — the
     // contact's name/email/phone/address already saved above. Log just the
@@ -224,9 +215,21 @@ export default async function handler(req, res) {
       }
     }
 
+    // Same rule as the note: a mail failure is Ben's problem to chase in the
+    // logs, not something to show a client who has already finished.
+    let emailed = false;
+    try {
+      emailed = await emailAnswers(d, rows);
+    } catch (mailErr) {
+      console.error('Onboarding email error:', mailErr);
+    }
+    if (!emailed) {
+      console.error(`UNSENT ONBOARDING EMAIL >>>\n` + recoverable);
+    }
+
     // The client is done either way — the contact is saved and the answers are
     // in the logs. Don't show them a failure they can't act on.
-    res.status(200).json({ success: true, noteSaved });
+    res.status(200).json({ success: true, noteSaved, emailed });
   } catch (err) {
     console.error('Onboarding submit error:', err);
     res.status(502).json({ success: false, message: 'Upstream error' });
